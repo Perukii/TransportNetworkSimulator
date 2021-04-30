@@ -22,7 +22,7 @@ int main(int argc, char** argv){
     
 
     image_file = fopen(argv[1], "r");
-    map_file   = fopen(argv[2], "w");
+    map_file   = fopen(argv[2], "w+");
 
     int height_difference = (int)argv[3][0]-(int)('0');
     
