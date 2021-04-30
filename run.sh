@@ -1,0 +1,14 @@
+
+
+PROJECT_NAME="Tohoku"
+
+RESOURCE_FILE="$PWD/$PROJECT_NAME"
+IMAGE_FILE="$RESOURCE_FILE/image.png"
+DATA_FILE="$RESOURCE_FILE/data.txt"
+PROPERTY="$RESOURCE_FILE/property.sh"
+
+. $PROPERTY
+
+(cd png2heightdata;. png2heightdata.sh $IMAGE_FILE $DATA_FILE $HEIGHT_DIFFELENCE)
+
+
