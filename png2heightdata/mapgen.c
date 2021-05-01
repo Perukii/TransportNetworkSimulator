@@ -99,7 +99,7 @@ int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h, 
 
     for (int iy=0; iy<image_pixel_h; iy++){
         for (int ix=0; ix<image_pixel_w; ix++){
-            format_panel(code, cont, iy*image_pixel_w+ix, data_digit);
+            format_panel(code, cont, iy*(image_pixel_w+0.1666)+ix, data_digit);
             reverse(code);
             fprintf(map_file, "%s,", code);
         }

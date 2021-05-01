@@ -10,8 +10,24 @@ import (
 
 import "github.com/ungerik/go-cairo"
 
+type city struct{
+	name string
+	longitude float64
+	latitude float64
+}
+
 func atoi(it string) int{
 	value, err := strconv.Atoi(it)
+	if err != nil {
+		fmt.Println("Error : heightdata_viewer : ", err)
+		os.Exit(2)
+	}
+	return value
+}
+
+
+func atof(it string) float64{
+	value, err := strconv.ParseFloat(it, 64)
 	if err != nil {
 		fmt.Println("Error : heightdata_viewer : ", err)
 		os.Exit(2)
@@ -25,7 +41,7 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 4 {
+    if len(argv) != 9 {
 		fmt.Println("Error : heightdata_viewer : Invalid arguments.")
 		os.Exit(2)
     }
@@ -41,8 +57,23 @@ func main(){
 	image_pixel_h := atoi(argv[2])
 	data_digit := atoi(argv[3])
 
+    citydata_file, err := os.Open(argv[4])
+    if err != nil {
+		fmt.Println("Error : heightdata_viewer : Failed to open file.")
+		os.Exit(2)
+    }
+    defer citydata_file.Close()
+	
+	longitude_s := atof(argv[5])
+	longitude_e := atof(argv[6])
+	latitude_s := atof(argv[7])
+	latitude_e := atof(argv[8])
+	
+
 	var heightdata [][]int
+	var citydata []city	
 	heightdata = make([][]int, image_pixel_h)
+
 	for i := 0; i<image_pixel_h; i++ {
 		heightdata[i] = make([]int, image_pixel_w)
 	}
@@ -55,7 +86,8 @@ func main(){
             break
         }
         if err != nil {
-            panic(err)
+			fmt.Println("Error : heightdata_viewer: Failed to read file.")
+			os.Exit(2)
         }
 		
 		column := 0
@@ -70,6 +102,31 @@ func main(){
 		}
 		
     }
+
+	cuf := make([]byte, 255)
+
+    for {
+        n, err := citydata_file.Read(cuf)
+        if n == 0 {
+            break
+        }
+        if err != nil {
+			fmt.Println("Error : heightdata_viewer : Failed to read file.")
+			os.Exit(2)
+        }
+		
+		slice := strings.Split(string(cuf), "\n")
+		
+		for _, it := range slice{
+			itp := strings.Split(it, ",")
+			if len(itp) < 3 { continue }
+			var cp city
+			cp.name = itp[0]
+			cp.longitude = atof(itp[1])
+			cp.latitude = atof(itp[2])
+			citydata = append(citydata, cp)
+		}
+	}
 
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
 	for row := 0; row < image_pixel_h; row++{
@@ -86,6 +143,13 @@ func main(){
 			surface.Rectangle(dcolumn, drow, 2, 2)
 			surface.Fill()
 		}
+	}
+	for _, cp := range citydata {
+		point_lg := (cp.longitude-longitude_s)/(longitude_e-longitude_s)
+		point_lt := 1.0-(cp.latitude-latitude_s)/(latitude_e-latitude_s)
+		surface.SetSourceRGB(0.9, 0.2, 0.2)
+		surface.Rectangle(float64(image_pixel_w)*point_lg, float64(image_pixel_h)*point_lt, 20, 20)
+		surface.Fill()
 	}
 	surface.WriteToPNG("../view.png")
 	surface.Finish()
