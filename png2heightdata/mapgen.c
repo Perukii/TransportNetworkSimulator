@@ -5,6 +5,7 @@
 
 #include "png_process.c"
 #include "mapgen_rules_process.c"
+int get_height(mapgen_panel_container*, int, int);
 #include "mapgen_rules.c"
 
 FILE *map_file;
@@ -47,6 +48,12 @@ int main(int argc, char** argv){
     fclose(map_file);
 }
 
+int get_height(mapgen_panel_container* cont, int ix, int iy){
+    int r = image_data[iy][ix*4+0];
+    int g = image_data[iy][ix*4+1];
+    int b = image_data[iy][ix*4+2];
+    return ((255-g)+b+r+1)*cont->height_difference;
+}
 
 int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h){
 

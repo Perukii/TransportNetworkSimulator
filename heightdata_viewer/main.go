@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"math"
+	//"math"
 )
 
 import "github.com/ungerik/go-cairo"
@@ -67,31 +67,6 @@ func main(){
 		}
 		
     }
-	// value adjustment
-	for row := 1; row < image_pixel_h-1; row++{
-		for column := 1; column < image_pixel_w-1; column++{
-			
-			bias := 30.0
-			target := float64(heightdata[row][column])
-			up := float64(heightdata[row-1][column])
-			lf := float64(heightdata[row][column-1])
-			dw := float64(heightdata[row+1][column])
-			rg := float64(heightdata[row][column+1])
-			
-			if target > up && target > dw {
-				if math.Max(math.Abs(target-up), math.Abs(target-dw)) > bias{
-					heightdata[row][column] = int(math.Max(up, dw))
-				}
-			}
-			if target > lf && target > rg {
-				if math.Max(math.Abs(target-lf), math.Abs(target-rg)) > bias{
-					heightdata[row][column] = int(math.Max(lf, rg))
-				}
-			}
-			
-			
-		}
-	}
 
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
 	for row := 0; row < image_pixel_h; row++{
