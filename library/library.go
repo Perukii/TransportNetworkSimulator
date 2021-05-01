@@ -46,7 +46,7 @@ func RequestHeightData(file string, image_pixel_w int, image_pixel_h int, data_d
 
     heightdata_file, err := os.Open(file)
     if err != nil {
-		fmt.Println("Error : heightdata_viewer : Failed to open file.")
+		fmt.Println("Error : library : Failed to open file.")
 		os.Exit(2)
     }
     defer heightdata_file.Close()
@@ -65,7 +65,7 @@ func RequestHeightData(file string, image_pixel_w int, image_pixel_h int, data_d
             break
         }
         if err != nil {
-			fmt.Println("Error : heightdata_viewer: Failed to read file.")
+			fmt.Println("Error : library : Failed to read file.")
 			os.Exit(2)
         }
 		
@@ -86,7 +86,7 @@ func RequestHeightData(file string, image_pixel_w int, image_pixel_h int, data_d
 func RequestCityData(file string, image_pixel_w int, image_pixel_h int, data_digit int) []City{
 	citydata_file, err := os.Open(file)
     if err != nil {
-		fmt.Println("Error : heightdata_viewer : Failed to open file.")
+		fmt.Println("Error : library : Failed to open file.")
 		os.Exit(2)
     }
     defer citydata_file.Close()
@@ -101,7 +101,7 @@ func RequestCityData(file string, image_pixel_w int, image_pixel_h int, data_dig
             break
         }
         if err != nil {
-			fmt.Println("Error : heightdata_viewer : Failed to read file.")
+			fmt.Println("Error : library : Failed to read file.")
 			os.Exit(2)
         }
 		
