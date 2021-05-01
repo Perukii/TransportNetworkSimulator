@@ -1,5 +1,3 @@
-#define PANEL_DATA_DIGIT 4 
-#define PANEL_DATA_SIZE 50
 
 #define PANEL_VOID 0x00
 
@@ -17,7 +15,7 @@ int mapgen_process();
 // メイン関数。
 int main(int argc, char** argv){
 
-    if(argc != 6){
+    if(argc != 7){
         printf("Error : png2heightdata : Invalid arguments.\n");
         return 0;
     }
@@ -27,10 +25,9 @@ int main(int argc, char** argv){
 
     int height_difference = (int)argv[3][0]-(int)('0');
 
-    //int image_pixel_w, image_pixel_h;
-
     int image_pixel_w = atoi(argv[4]);
     int image_pixel_h = atoi(argv[5]);
+    int data_digit = atoi(argv[6]);
     
     if(image_file == NULL || map_file == NULL){
         printf("Error : png2heightdata : Failed to open file.\n");
@@ -41,7 +38,7 @@ int main(int argc, char** argv){
     printf("png2heightdata : reading files...\n");
     read_process(image_pixel_w, image_pixel_h);
     printf("png2heightdata : processing...\n");
-    mapgen_process(height_difference, image_pixel_w, image_pixel_h);
+    mapgen_process(height_difference, image_pixel_w, image_pixel_h, data_digit);
     printf("png2heightdata : freeing resources...\n");
     free_process(image_pixel_w, image_pixel_h);
 
@@ -55,7 +52,7 @@ int get_height(mapgen_panel_container* cont, int ix, int iy){
     return ((255-g)+b+r+1)*cont->height_difference;
 }
 
-int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h){
+int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h, int data_digit){
 
     int r, g, b;
     mapgen_panel_container* cont;
@@ -98,16 +95,18 @@ int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h){
     }
 
     // 書き込む。
-    char code[PANEL_DATA_SIZE];
+    char* code = (char*)malloc(sizeof(char)*data_digit);
 
     for (int iy=0; iy<image_pixel_h; iy++){
         for (int ix=0; ix<image_pixel_w; ix++){
-            format_panel(code, cont, iy*image_pixel_w+ix);
+            format_panel(code, cont, iy*image_pixel_w+ix, data_digit);
             reverse(code);
             fprintf(map_file, "%s,", code);
         }
         fprintf(map_file, "\n");
     }
+
+    free(code);
 
     free(cont);
     

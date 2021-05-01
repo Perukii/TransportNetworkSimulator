@@ -22,7 +22,7 @@ func atoi(it string) int{
 func main(){
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 3 {
+    if len(argv) != 4 {
 		fmt.Println("Error : heightdata_viewer : Invalid arguments.")
 		os.Exit(2)
     }
@@ -35,8 +35,8 @@ func main(){
     defer heightdata_file.Close()
 
 	image_pixel_w := atoi(argv[1])
-
 	image_pixel_h := atoi(argv[2])
+	data_digit := atoi(argv[3])
 
 	var heightdata [][]int
 	heightdata = make([][]int, image_pixel_h)
@@ -44,7 +44,7 @@ func main(){
 		heightdata[i] = make([]int, image_pixel_w)
 	}
 
-    buf := make([]byte, image_pixel_w*5)
+    buf := make([]byte, image_pixel_w*(data_digit+1))
 	
     for row := 0; row < image_pixel_h; row++{
         n, err := heightdata_file.Read(buf)

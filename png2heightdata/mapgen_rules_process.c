@@ -15,12 +15,12 @@ char hexchar(int n){
     return n + (n<10 ? '0':'a'-10);
 }
 
-void format_panel(char *target, mapgen_panel_container *cont, int adress){
+void format_panel(char *target, mapgen_panel_container *cont, int adress, int data_digit){
     
     int point=0, value;
     
     value = cont[adress].height;
-    for(int j=0; j<PANEL_DATA_DIGIT; j++){
+    for(int j=0; j<data_digit; j++){
         int n = value%10;
         target[point++] = hexchar(n);
         value /= 10;
