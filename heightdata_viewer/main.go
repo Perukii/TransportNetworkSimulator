@@ -20,6 +20,9 @@ func atoi(it string) int{
 }
 
 func main(){
+
+	fmt.Println("heightdata_viewer : processing...")
+
 	flag.Parse()
 	argv := flag.Args()
     if len(argv) != 4 {
