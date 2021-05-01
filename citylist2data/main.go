@@ -3,9 +3,9 @@ import (
 	"fmt"
 	"flag"
 	"os"
-	"strconv"
 	"strings"
 	"bufio"
+	"../library"
 )
 
 type city struct{
@@ -17,15 +17,6 @@ type city struct{
 func ftoa(it float64) string{
 
 	return fmt.Sprintf("%f", it)
-}
-
-func atoi(it string) int{
-	value, err := strconv.Atoi(it)
-	if err != nil {
-		fmt.Println("Error : citylist2data : ", err)
-		os.Exit(2)
-	}
-	return value
 }
 
 func tonum(code string) float64{
@@ -41,7 +32,7 @@ func tonum(code string) float64{
 		}
 		i++
 	}
-	res = float64(atoi(code[0:d0]))+float64(atoi(code[d0+2:dm1+1]))/60.0+float64(atoi(code[dm1+4:dm2+3]))/3600.0
+	res = library.Atof(code[0:d0])+library.Atof(code[d0+2:dm1+1])/60.0+library.Atof(code[dm1+4:dm2+3])/3600.0
 	return res
 }
 
@@ -102,11 +93,6 @@ func main(){
 		
     }
 
-	
-
 	writer.Flush()
-
-	//fmt.Println(citylist[1].name)
-
 
 }
