@@ -5,7 +5,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"math"
 )
+
+import "github.com/ungerik/go-cairo"
 
 func atoi(it string) int{
 	value, err := strconv.Atoi(it)
@@ -42,9 +45,8 @@ func main(){
 	}
 
     buf := make([]byte, image_pixel_w*5)
-	row := 0
-    for{
-		if row >= image_pixel_h { break }
+	
+    for row := 0; row < image_pixel_h; row++{
         n, err := heightdata_file.Read(buf)
         if n == 0 {
             break
@@ -52,12 +54,10 @@ func main(){
         if err != nil {
             panic(err)
         }
-        //fmt.Println(string(buf))
 		
 		column := 0
 		slice := strings.Split(strings.Replace(string(buf), "\n", "", -1), ",")
 		
-
 		for _, it := range slice{
 			if column >= image_pixel_w { break }
 			if it == "" { break }
@@ -65,9 +65,47 @@ func main(){
 			heightdata[row][column] = value
 			column++
 		}
-		row++
+		
     }
-	fmt.Println("ok", image_pixel_h)
+	// value adjustment
+	for row := 1; row < image_pixel_h-1; row++{
+		for column := 1; column < image_pixel_w-1; column++{
+			
+			bias := 30.0
+			target := float64(heightdata[row][column])
+			up := float64(heightdata[row-1][column])
+			lf := float64(heightdata[row][column-1])
+			dw := float64(heightdata[row+1][column])
+			rg := float64(heightdata[row][column+1])
 
-	
+			if target > up && target > dw {
+				if math.Max(math.Abs(target-up), math.Abs(target-dw)) > bias{
+					heightdata[row][column] = int(math.Max(up, dw))
+				}
+			}
+			if target > lf && target > rg {
+				if math.Max(math.Abs(target-lf), math.Abs(target-rg)) > bias{
+					heightdata[row][column] = int(math.Max(lf, rg))
+				}
+			}
+			
+			
+		}
+	}
+
+	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
+	for row := 0; row < image_pixel_h; row++{
+		for column := 0; column < image_pixel_w; column++{
+			if heightdata[row][column] == 0 { continue }
+			color := 1-float64(heightdata[row][column])/3000
+			drow := float64(row)
+			dcolumn := float64(column)
+			
+			surface.SetSourceRGB(color, color, color)
+			surface.Rectangle(dcolumn, drow, 2, 2)
+			surface.Fill()
+		}
+	}
+	surface.WriteToPNG("../view.png")
+	surface.Finish()
 }
