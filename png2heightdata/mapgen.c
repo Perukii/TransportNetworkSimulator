@@ -9,22 +9,27 @@
 
 FILE *map_file;
 
+
 // MAPDATAを作成/保存する。
 int mapgen_process();
 
 // メイン関数。
 int main(int argc, char** argv){
 
-    if(argc != 4){
+    if(argc != 6){
         printf("Error : png2heightdata : Invalid arguments.\n");
         return 0;
     }
     
-
     image_file = fopen(argv[1], "r");
     map_file   = fopen(argv[2], "w+");
 
     int height_difference = (int)argv[3][0]-(int)('0');
+
+    //int image_pixel_w, image_pixel_h;
+
+    int image_pixel_w = atoi(argv[4]);
+    int image_pixel_h = atoi(argv[5]);
     
     if(image_file == NULL || map_file == NULL){
         printf("Error : png2heightdata : Failed to open file.\n");
@@ -33,30 +38,32 @@ int main(int argc, char** argv){
 
     // mapdata.pngを読み込む。
     printf("png2heightdata : reading files...\n");
-    read_process();
+    read_process(image_pixel_w, image_pixel_h);
     printf("png2heightdata : processing...\n");
-    mapgen_process(height_difference);
+    mapgen_process(height_difference, image_pixel_w, image_pixel_h);
     printf("png2heightdata : freeing resources...\n");
-    free_process();
+    free_process(image_pixel_w, image_pixel_h);
 
     fclose(map_file);
 }
 
 
-int mapgen_process(int height_difference){
+int mapgen_process(int height_difference, int image_pixel_w, int image_pixel_h){
 
     int r, g, b;
     mapgen_panel_container* cont;
-    cont = (mapgen_panel_container*)malloc(sizeof(mapgen_panel_container)*image_width*image_height);
+    cont = (mapgen_panel_container*)malloc(sizeof(mapgen_panel_container)*image_pixel_w*image_pixel_h);
 
-    for (int i=0; i<image_width*image_height; i++){
+    for (int i=0; i<image_pixel_w*image_pixel_h; i++){
         cont[i].size = 0;
         cont[i].height = 0;
         cont[i].height_difference = height_difference;
+        cont[i].image_pixel_w = image_pixel_w;
+        cont[i].image_pixel_h = image_pixel_h;
     }
 
-    for (int iy=0; iy<image_height; iy++){
-        for (int ix=0; ix<image_width; ix++){
+    for (int iy=0; iy<image_pixel_h; iy++){
+        for (int ix=0; ix<image_pixel_w; ix++){
 
             // image_data からrgb値を取得。
             r = image_data[iy][ix*4+0];
@@ -86,9 +93,9 @@ int mapgen_process(int height_difference){
     // 書き込む。
     char code[PANEL_DATA_SIZE];
 
-    for (int iy=0; iy<image_height; iy++){
-        for (int ix=0; ix<image_width; ix++){
-            format_panel(code, cont, iy*image_width+ix);
+    for (int iy=0; iy<image_pixel_h; iy++){
+        for (int ix=0; ix<image_pixel_w; ix++){
+            format_panel(code, cont, iy*image_pixel_w+ix);
             reverse(code);
             fprintf(map_file, "%s,", code);
         }

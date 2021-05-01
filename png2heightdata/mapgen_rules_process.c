@@ -3,6 +3,7 @@ typedef struct {
     int size;
     int height;
     int height_difference;
+    int image_pixel_w, image_pixel_h;
 } mapgen_panel_container;
 
 typedef struct {
@@ -28,7 +29,7 @@ void format_panel(char *target, mapgen_panel_container *cont, int adress){
 
 void panel_container_insert(mapgen_panel_container *cont, int x, int y, int image){
     
-    int ad = y*image_width+x;
+    int ad = y*cont->image_pixel_w+x;
     
     cont[ad].height=image;
     cont[ad].size++;
@@ -36,7 +37,7 @@ void panel_container_insert(mapgen_panel_container *cont, int x, int y, int imag
 
 bool panel_equal(mapgen_panel_container *cont, int ax, int ay, int bx, int by){
     
-    if(bx < 0 || bx >= image_width || by < 0 || by >= image_height) return 0;
+    if(bx < 0 || bx >= cont->image_pixel_w || by < 0 || by >= cont->image_pixel_h) return 0;
     
     bool result = 1;
     for(int i=0; i<3; i++)
