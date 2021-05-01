@@ -77,7 +77,7 @@ func main(){
 			lf := float64(heightdata[row][column-1])
 			dw := float64(heightdata[row+1][column])
 			rg := float64(heightdata[row][column+1])
-
+			
 			if target > up && target > dw {
 				if math.Max(math.Abs(target-up), math.Abs(target-dw)) > bias{
 					heightdata[row][column] = int(math.Max(up, dw))
@@ -96,12 +96,15 @@ func main(){
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
 	for row := 0; row < image_pixel_h; row++{
 		for column := 0; column < image_pixel_w; column++{
-			if heightdata[row][column] == 0 { continue }
-			color := 1-float64(heightdata[row][column])/3000
 			drow := float64(row)
 			dcolumn := float64(column)
-			
-			surface.SetSourceRGB(color, color, color)
+			if heightdata[row][column] == 0 {
+				continue
+			} else {
+				color := float64(heightdata[row][column])/2000
+
+				surface.SetSourceRGB(0.6-color*0.2, 0.9-color*0.7, 0.4-color*0.4)
+			}
 			surface.Rectangle(dcolumn, drow, 2, 2)
 			surface.Fill()
 		}

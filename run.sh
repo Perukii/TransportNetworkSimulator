@@ -14,7 +14,7 @@ mkdir -p $DATA_DIR
 
 . $PROPERTY
 
-#(cd png2heightdata;. png2heightdata.sh $IMAGE_FILE $HEIGHT_DATA_FILE $HEIGHT_DIFFELENCE $IMAGE_WIDTH $IMAGE_HEIGHT)
+(cd png2heightdata;. png2heightdata.sh $IMAGE_FILE $HEIGHT_DATA_FILE $HEIGHT_DIFFELENCE $IMAGE_WIDTH $IMAGE_HEIGHT)
 (cd heightdata_viewer;. heightdata_viewer.sh $HEIGHT_DATA_FILE $IMAGE_WIDTH $IMAGE_HEIGHT)
 
 

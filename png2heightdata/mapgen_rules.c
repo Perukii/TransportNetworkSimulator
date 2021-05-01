@@ -15,6 +15,6 @@ void rule_255_255_255(RULE_ARG(cont, x, y)){
 }
 
 void rule_otherwise(RULE_ARG(cont, x, y), int r, int g, int b){
-    panel_container_insert(cont, x, y, ((255-g)+b+r)*cont->height_difference);
+    panel_container_insert(cont, x, y, ((255-g)+b+r+1)*cont->height_difference);
 }
 
