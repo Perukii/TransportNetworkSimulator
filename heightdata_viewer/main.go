@@ -15,7 +15,7 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 9 {
+    if len(argv) != 10 {
 		fmt.Println("Error : heightdata_viewer : Invalid arguments.")
 		os.Exit(2)
     }
@@ -30,6 +30,7 @@ func main(){
 
 	heightdata := library.RequestHeightData(argv[0], image_pixel_w, image_pixel_h, data_digit)
 	citydata := library.RequestCityData(argv[4], image_pixel_w, image_pixel_h, data_digit)
+	pathdata := library.RequestPathData(argv[9], image_pixel_w, image_pixel_h, data_digit)
 
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
 	for row := 0; row < image_pixel_h; row++{
@@ -47,13 +48,28 @@ func main(){
 			surface.Fill()
 		}
 	}
+	for _, pp := range pathdata {
+		surface.SetLineWidth(pp.Width)
+		surface.SetSourceRGB(pp.R, pp.G, pp.B)
+		
+		for i := 0; i<len(pp.Longitude); i++ {
+			point_lg := library.GetXFromLongitude(pp.Longitude[i], longitude_s, longitude_e, image_pixel_w)
+			point_lt := library.GetYFromLatitude(pp.Latitude[i], latitude_s, latitude_e, image_pixel_h)
+			if i == 0{
+				surface.MoveTo(point_lg, point_lt)
+			}else{
+				surface.LineTo(point_lg, point_lt)
+			}
+		}
+		surface.Stroke()
+	}
 	for _, cp := range citydata {
-		point_lg := (cp.Longitude-longitude_s)/(longitude_e-longitude_s)
-		point_lt := 1.0-(cp.Latitude-latitude_s)/(latitude_e-latitude_s)
+		point_lg := library.GetXFromLongitude(cp.Longitude, longitude_s, longitude_e, image_pixel_w)
+		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)
 		surface.SetSourceRGB(0.9, 0.2, 0.2)
 		mark_size := 20.0
-		surface.Rectangle(float64(image_pixel_w)*point_lg-mark_size/2,
-						  float64(image_pixel_h)*point_lt-mark_size/2,
+		surface.Rectangle(point_lg-mark_size/2,
+						  point_lt-mark_size/2,
 						  mark_size, mark_size)
 		surface.Fill()
 	}
