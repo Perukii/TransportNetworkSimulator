@@ -51,6 +51,10 @@ func Atof(it string) float64{
 	return value
 }
 
+func Ftoa(it float64) string{
+	return fmt.Sprintf("%f", it)
+}
+
 func RequestHeightData(file string, image_pixel_w int, image_pixel_h int, data_digit int) [][]int{
 
     heightdata_file, err := os.Open(file)

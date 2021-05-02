@@ -14,7 +14,7 @@ type city struct{
 	latitude float64
 }
 
-func ftoa(it float64) string{
+func Ftoa(it float64) string{
 
 	return fmt.Sprintf("%f", it)
 }
@@ -80,8 +80,8 @@ func main(){
 			cp.latitude = tonum(itp[2])
 
 			line := cp.name +
-					"," + ftoa(cp.longitude) + 
-					"," + ftoa(cp.latitude) + 
+					"," + library.Ftoa(cp.longitude) + 
+					"," + library.Ftoa(cp.latitude) + 
 					"\n"
 
 			if _, err := writer.Write([]byte(line)); err != nil {
