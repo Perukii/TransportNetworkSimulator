@@ -28,7 +28,7 @@ mkdir -p $DATA_DIR
 #(cd citylist2data;. citylist2data.sh $CITY_LIST_FILE $CITY_DATA_FILE)
 (cd simpath;. simpath.sh $COMMON_ARG)
 
-#(cd heightdata_viewer;. heightdata_viewer.sh )
+(cd heightdata_viewer;. heightdata_viewer.sh $COMMON_ARG)
 
 
 

@@ -20,6 +20,7 @@ func main(){
 		os.Exit(2)
     }
 
+
 	image_pixel_w := library.Atoi(argv[1])
 	image_pixel_h := library.Atoi(argv[2])
 	data_digit := library.Atoi(argv[3])
@@ -33,6 +34,8 @@ func main(){
 	pathdata := library.RequestPathData(argv[9], image_pixel_w, image_pixel_h, data_digit)
 
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
+
+
 	for row := 0; row < image_pixel_h; row++{
 		for column := 0; column < image_pixel_w; column++{
 			drow := float64(row)
@@ -48,6 +51,8 @@ func main(){
 			surface.Fill()
 		}
 	}
+
+
 	for _, pp := range pathdata {
 		surface.SetLineWidth(pp.Width)
 		surface.SetSourceRGB(pp.R, pp.G, pp.B)
@@ -63,6 +68,7 @@ func main(){
 		}
 		surface.Stroke()
 	}
+	
 	for _, cp := range citydata {
 		point_lg := library.GetXFromLongitude(cp.Longitude, longitude_s, longitude_e, image_pixel_w)
 		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)

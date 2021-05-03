@@ -5,6 +5,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"bufio"
+	"io"
 )
 
 type MapInfo struct{
@@ -106,14 +108,13 @@ func RequestCityData(file string, image_pixel_w int, image_pixel_h int, data_dig
 
 	var citydata []City
 
-	buf := make([]byte, 255)
+	reader := bufio.NewReaderSize(citydata_file, 4096)
 
     for {
-        n, err := citydata_file.Read(buf)
-        if n == 0 {
-            break
-        }
-        if err != nil {
+		buf, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		} else if err != nil {
 			fmt.Println("Error : library : Failed to read file.")
 			os.Exit(2)
         }
@@ -144,20 +145,23 @@ func RequestPathData(file string, image_pixel_w int, image_pixel_h int, data_dig
 
 	var pathdata []Path
 
-	buf := make([]byte, 255)
+	//buf := make([]byte, 255)
+	reader := bufio.NewReaderSize(pathdata_file, 4096)
+
+	psize := 0
 
     for {
-        n, err := pathdata_file.Read(buf)
-        if n == 0 {
-            break
-        }
-        if err != nil {
+
+        buf, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		} else if err != nil {
 			fmt.Println("Error : library : Failed to read file.")
 			os.Exit(2)
         }
 		
 		slice := strings.Split(string(buf), "\n")
-		psize := 0
+		
 		
 		for _, it := range slice{
 			if it == "" { continue }
@@ -175,8 +179,11 @@ func RequestPathData(file string, image_pixel_w int, image_pixel_h int, data_dig
 
 			} else {
 				if len(itp) != 2 { continue }
+				if psize <= 0 { continue }
 				pathdata[psize-1].Longitude = append(pathdata[psize-1].Longitude, Atof(itp[0]))
 				pathdata[psize-1].Latitude =  append(pathdata[psize-1].Latitude,  Atof(itp[1]))
+
+				
 			}
 		}
 	}
