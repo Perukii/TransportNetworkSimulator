@@ -20,6 +20,7 @@ type SpHost struct{
 	longitude_e float64
 	latitude_s float64
 	latitude_e float64
+	lglt_ratio float64
 
 	heightdata [][]int
 	citydata []library.City
@@ -94,7 +95,7 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 	}
 
 	get_score := func(tar LgLt, parent LgLt) float64{
-		lgd := tar.longitude - city_b.Longitude
+		lgd := (tar.longitude - city_b.Longitude)*host.lglt_ratio
 		ltd := tar.latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 
@@ -106,13 +107,6 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 	open_path_point := func(tar LgLt, parent LgLt){
 		if _, ok := point_index[tar]; ok {
 			//exists
-			/*
-			cmp := point_list[point_index[point_list[point_index[tar]].parent]]
-			if cmp.score > point_list[point_index[parent]].score {
-				point_list[point_index[tar]].parent = parent
-			}
-			*/
-			
 			return
 		}
 
@@ -168,10 +162,10 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 		//point_list[ad].parent = ptar
 		ptar = point_list[ad].lglt
 		
-		up := toLgLt(ptar.longitude     , ptar.latitude+pitv)
-		dw := toLgLt(ptar.longitude     , ptar.latitude-pitv)
-		lf := toLgLt(ptar.longitude-pitv, ptar.latitude     )
-		rg := toLgLt(ptar.longitude+pitv, ptar.latitude     )
+		up := toLgLt(ptar.longitude     				, ptar.latitude+pitv)
+		dw := toLgLt(ptar.longitude     				, ptar.latitude-pitv)
+		lf := toLgLt(ptar.longitude-pitv*host.lglt_ratio, ptar.latitude     )
+		rg := toLgLt(ptar.longitude+pitv*host.lglt_ratio, ptar.latitude     )
 		
 		open_path_point(up, ptar)
 		open_path_point(dw, ptar)
@@ -230,7 +224,7 @@ func main(){
 	host.longitude_e = library.Atof(argv[6])
 	host.latitude_s = library.Atof(argv[7])
 	host.latitude_e = library.Atof(argv[8])
-	
+	host.lglt_ratio = ((host.longitude_s-host.longitude_e)/float64(host.image_pixel_w))/((host.latitude_s-host.latitude_e)/float64(host.image_pixel_h))
 	host.heightdata = library.RequestHeightData(argv[0], host.image_pixel_w, host.image_pixel_h, host.data_digit)
 	host.citydata = library.RequestCityData(argv[4], host.image_pixel_w, host.image_pixel_h, host.data_digit)
 	host.cityindex = make(map[string]int)
