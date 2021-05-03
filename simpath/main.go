@@ -35,9 +35,9 @@ func main(){
 	host.Cityindex = make(map[string]int)
 
 	host.Init()
-
 	host.Init_writer(argv[9])
-	path := host.Make_aster_path(host.Cityindex["鰺ヶ沢町"], host.Cityindex["二戸市"], 0.03, -1, true)
+	
+	path := host.Make_aster_path(host.Cityindex["鰺ヶ沢町"], host.Cityindex["むつ市"], 0.03, 2000, -1, true)
 	host.Register_new_path(5.0, 1.0, 0.5, 0.3)
 	for _, ptar := range path {
 		host.Write_path_point(ptar.Longitude, ptar.Latitude)

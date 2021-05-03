@@ -34,6 +34,7 @@ func main(){
 	heightdata := library.RequestHeightData(argv[0], image_pixel_w, image_pixel_h, data_digit)
 	citydata := library.RequestCityData(argv[4], image_pixel_w, image_pixel_h, data_digit)
 	pathdata := library.RequestPathData(argv[9], image_pixel_w, image_pixel_h, data_digit)
+	urbandata := library.RequestUrbanData(argv[10], image_pixel_w, image_pixel_h, data_digit)
 
 	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
 
@@ -51,8 +52,10 @@ func main(){
 			}
 			surface.Rectangle(dcolumn, drow, 2, 2)
 			surface.Fill()
+	
 		}
 	}
+
 
 
 	for _, pp := range pathdata {
@@ -82,6 +85,24 @@ func main(){
 						  mark_size_f, mark_size_f)
 		surface.Fill()
 	}
+
+	for row := 0; row < image_pixel_h; row++{
+		for column := 0; column < image_pixel_w; column++{
+			drow := float64(row)
+			dcolumn := float64(column)
+			if urbandata[row][column] == 0 {
+				continue
+			}
+			surface.SetSourceRGB(0.1,0.1,0.1)
+
+			surface.Rectangle(dcolumn, drow, 2, 2)
+			surface.Fill()
+		}
+	}
+
+
+
+
 	surface.WriteToPNG("../view.png")
 	surface.Finish()
 }

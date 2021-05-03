@@ -28,6 +28,11 @@ type LgLt struct{
 	Latitude  float64
 }
 
+type LgLtFix struct{
+	LongitudeF int
+	LatitudeF  int
+}
+
 type PathPoint struct{
 	Flag int // 1:opened 2:closed
 	Score float64
@@ -39,6 +44,13 @@ func ToLgLt(longitude, latitude float64) LgLt{
 	var res LgLt
 	res.Longitude = longitude
 	res.Latitude = latitude
+	return res
+}
+
+func ToLgLtFix(lglt LgLt) LgLtFix{
+	var res LgLtFix
+	res.LongitudeF = int(math.Floor(lglt.Longitude*1000))
+	res.LatitudeF = int(math.Floor(lglt.Latitude*1000))
 	return res
 }
 
@@ -74,26 +86,28 @@ func (host *SpHost) Init_writer(file string){
 	host.Writer = bufio.NewWriter(host.Pathdata_file)
 }
 
-func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int, debug bool) []LgLt{
+func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight float64, loop int, debug bool) []LgLt{
 	
 	
 	var point_list []PathPoint
-	var point_index map[LgLt]int // contains addresses of point_list
+	var point_index map[LgLtFix]int // contains addresses of point_list
 	var open_list *rbt.Tree // contains addresses of point_list
 
 	open_list = rbt.NewWithIntComparator()
 
-	point_index = make(map[LgLt]int)
+	point_index = make(map[LgLtFix]int)
 	city_a := &host.Citydata[index_a]
 	city_b := &host.Citydata[index_b]
 	ptar := ToLgLt(city_a.Longitude, city_a.Latitude)
 
 	get_height := func(tar LgLt) float64{
-		height := 
-			host.Heightdata[
-				int(GetYFromLatitude(tar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))][
-				int(GetXFromLongitude(tar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))]
-		fheight := float64(height)
+		yad := int(GetYFromLatitude(tar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
+		xad := int(GetXFromLongitude(tar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
+		if yad < 0 || yad >= host.Image_pixel_h || xad < 0 || xad >= host.Image_pixel_w{
+			return 0.0
+		}
+			
+		fheight := float64(host.Heightdata[yad][xad])
 		return fheight
 	}
 
@@ -105,15 +119,15 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 			return -1
 		}
 
-		lgd := (tar.Longitude - city_b.Longitude)*host.LgLt_ratio
+		lgd := (tar.Longitude - city_b.Longitude)/host.LgLt_ratio
 		ltd := tar.Latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
-
-		return distance + hdist/2000
+		_,_ = distance, hdist
+		return distance + hdist/dist_weight
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
-		if _, ok := point_index[tar]; ok {
+		if _, ok := point_index[ToLgLtFix(tar)]; ok {
 			//exists
 			return
 		}
@@ -125,13 +139,13 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 		point.LgLt = tar
 
 		if point.Score < 0 {
-			point.Flag = 2
+			point.Flag = 3
 			return 
 		}
 		
 
 		ad := len(point_list)
-		point_index[tar] = ad
+		point_index[ToLgLtFix(tar)] = ad
 		idscore := int(math.Floor(point.Score*10000))
 		for{
 			_, found := open_list.Get(idscore)
@@ -149,7 +163,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 	}
 
 	close_path_point := func(tar LgLt){
-		ad := point_index[tar]
+		ad := point_index[ToLgLtFix(tar)]
 		if point_list[ad].Flag != 1 { return }
 		point_list[ad].Flag = 2
 
@@ -170,7 +184,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 	open_path_point(ptar, ptar)
 
 	for {
-		
+		if open_list.Size() == 0 { break }
 		ad := open_list.Left().Value.(int)
 		ptar = point_list[ad].LgLt
 		
@@ -190,9 +204,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 		   math.Abs(ptar.Longitude-city_b.Longitude) <= pitv &&
 		   math.Abs(ptar.Latitude-city_b.Latitude) <= pitv{
 			break
-		}
-
-		if loop >= 0 {
+		} else {
 			if loop == 0 {
 				break
 			} else {
@@ -210,19 +222,28 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv float64, loop int
 			host.Write_path_point(point_list[ad].LgLt.Longitude, point_list[ad].LgLt.Latitude+0.01)
 		}
 	}
-
 	var res []LgLt
-	res = append(res, ToLgLt(city_b.Longitude, city_b.Latitude))
-	btar := ptar
-	for {
-		res = append(res, ToLgLt((ptar.Longitude+btar.Longitude)/2, (ptar.Latitude+btar.Latitude)/2))
+	if loop < 0{
 		
-		if ptar.Longitude == city_a.Longitude && ptar.Latitude == city_a.Latitude{
-			break
+		res = append(res, ToLgLt(city_b.Longitude, city_b.Latitude))
+		btar := ptar
+		for {
+			res = append(res, ToLgLt((ptar.Longitude+btar.Longitude)/2, (ptar.Latitude+btar.Latitude)/2))
+			
+			if ptar.Longitude == city_a.Longitude && ptar.Latitude == city_a.Latitude{
+				break
+			}
+			btar = ptar
+			ptar = point_list[point_index[ToLgLtFix(ptar)]].Parent
 		}
-		btar = ptar
-		ptar = point_list[point_index[ptar]].Parent
+		res = append(res, ToLgLt(city_a.Longitude, city_a.Latitude))
+		
+	} else {
+		for _, tar := range point_list{
+			if tar.Flag != 2 { continue }
+			res = append(res, tar.LgLt)
+		} 
 	}
-	res = append(res, ToLgLt(city_a.Longitude, city_a.Latitude))
 	return res
+
 }

@@ -151,7 +151,6 @@ func RequestPathData(file string, image_pixel_w int, image_pixel_h int, data_dig
 
 	var pathdata []Path
 
-	//buf := make([]byte, 255)
 	reader := bufio.NewReaderSize(pathdata_file, 4096)
 
 	psize := 0
@@ -196,6 +195,56 @@ func RequestPathData(file string, image_pixel_w int, image_pixel_h int, data_dig
 
 	return pathdata
 }
+
+func RequestUrbanData(file string, image_pixel_w int, image_pixel_h int, data_digit int) [][]int{
+
+    urbandata_file, err := os.Open(file)
+    if err != nil {
+		fmt.Println("Error : library : Failed to open file.")
+		os.Exit(2)
+    }
+    defer urbandata_file.Close()
+
+	urbandata := make([][]int, image_pixel_h)
+
+	for i := 0; i<image_pixel_h; i++ {
+		urbandata[i] = make([]int, image_pixel_w)
+	}
+
+	reader := bufio.NewReaderSize(urbandata_file, 3*image_pixel_w)
+
+	row := 0
+
+    for {
+
+        buf, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("Error : library : Failed to read file.")
+			os.Exit(2)
+        }
+		
+		slice := strings.Split(string(buf), "\n")
+		
+		
+		
+		for _, it := range slice{
+			if it == "" { continue }
+			itp := strings.Split(it, ",")
+			column := 0
+			for _, pitp := range itp{
+				urbandata[row][column] = Atoi(pitp)
+				column++
+			}
+			row++
+		}
+		
+	}
+
+	return urbandata
+}
+
 
 
 func GetXFromLongitude(tar_longitude float64, longitude_s float64, longitude_e float64,

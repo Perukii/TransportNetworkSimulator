@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 	"../library"
+	"bufio"
 )
 
 func main(){
@@ -31,7 +32,10 @@ func main(){
 	host.Citydata = library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	host.Cityindex = make(map[string]int)
 
-	pdensity := 10000
+	
+	pdensity := 1000
+	host.Init()
+
 
 	urbandata_file, err := os.Create(argv[10])
     if err != nil {
@@ -39,15 +43,40 @@ func main(){
 		os.Exit(2)
     }
 
+	host.Writer = bufio.NewWriter(urbandata_file)
+
 	var urbandata [][]int
-	urbandata = make([][]int, host.Image_pixel_h, host.Image_pixel_h)
+	urbandata = make([][]int, host.Image_pixel_h)
 	for i := 0; i < host.Image_pixel_h; i++{
-		urbandata[i] = make([]int, host.Image_pixel_w, host.Image_pixel_w)
+		urbandata[i] = make([]int, host.Image_pixel_w)
 	}
 	
-	for _, city := range host.Citydata {
-		
+	_ = pdensity
+	for i := 1; i < len(host.Citydata); i++ {
+		//if host.Citydata[i].Population == 0 { continue }
+		path := host.Make_aster_path(i, i, 0.002, 300, host.Citydata[i].Population/pdensity, false)
+		for _, ptar := range path {
+			//fmt.Println(ptar.Longitude, ptar.Latitude)
+			yad := int(library.GetYFromLatitude(ptar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
+			xad := int(library.GetXFromLongitude(ptar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
+			
+			if yad < 0 || yad >= host.Image_pixel_h || xad < 0 || xad >= host.Image_pixel_w{
+				continue
+			}
+			
+			urbandata[yad][xad] = 1
+		}
 	}
+
+	for i := 0; i < host.Image_pixel_h; i++{
+		line := ""
+		for j := 0; j < host.Image_pixel_w; j++{
+			line += library.Itoa(urbandata[i][j])+","
+		}
+		line = line[0:len(line)-1]
+		host.Write_line(line+"\n")
+	}
+	host.Writer.Flush()
 
 
 
