@@ -98,9 +98,9 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 		ltd := tar.latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 
-
-		hp := math.Abs(get_height(tar)-get_height(parent))
-		return distance + hp/10000
+		height := get_height(tar)
+		hdist := math.Abs(height-get_height(parent))
+		return distance + hdist/2000
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
@@ -187,16 +187,23 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 	}
 
 	host.register_new_path(width, r, g, b)
+	btar := ptar
 	for {
-
-		host.write_path_point(ptar.longitude, ptar.latitude)
+		host.write_path_point((ptar.longitude+btar.longitude)/2, (ptar.latitude+btar.latitude)/2)
 		
 		if ptar.longitude == city_a.Longitude && ptar.latitude == city_a.Latitude{
 			break
 		}
-
+		btar = ptar
 		ptar = point_list[point_index[ptar]].parent
-		
+	}
+
+	
+	for _, iad := range open_list.Values() {
+		ad := iad.(int)
+		host.register_new_path(5.0, r*0.5, g*0.5, b*0.5)
+		host.write_path_point(point_list[ad].lglt.longitude, point_list[ad].lglt.latitude)
+		host.write_path_point(point_list[ad].lglt.longitude, point_list[ad].lglt.latitude+0.01)
 	}
 	
 
@@ -233,6 +240,6 @@ func main(){
 	}
 
 	host.init_writer(argv[9])
-	host.make_aster_path(host.cityindex["Akita"], host.cityindex["Sendai"], 0.01, 5.0, 1.0, 0.5, 0.3)
+	host.make_aster_path(host.cityindex["Akita"], host.cityindex["Sendai"], 0.03, 5.0, 1.0, 0.5, 0.3)
 	host.writer.Flush()
 }
