@@ -16,7 +16,7 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 10 {
+    if len(argv) != 11 {
 		fmt.Println("Error : data_output : Invalid arguments.")
 		os.Exit(2)
     }

@@ -21,8 +21,6 @@ func main(){
     }
 
 	height_diff := library.Atoi(argv[2])
-	//image_pixel_w := library.Atoi(argv[3])
-	//image_pixel_h := library.Atoi(argv[4])
 	data_digit := library.Atoi(argv[5])
 	
 

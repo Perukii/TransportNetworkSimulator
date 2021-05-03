@@ -5,18 +5,15 @@ import (
 	"flag"
 	"os"
 	"../library"
-
 )
 
-
 func main(){
-
-	fmt.Println("simpath : processing...")
+	fmt.Println("urbandata : processing...")
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 10 {
-		fmt.Println("Error : simpath : Invalid arguments.")
+    if len(argv) != 11 {
+		fmt.Println("Error : urbandata : Invalid arguments.")
 		os.Exit(2)
     }
 
@@ -34,13 +31,24 @@ func main(){
 	host.Citydata = library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	host.Cityindex = make(map[string]int)
 
-	host.Init()
+	pdensity := 10000
 
-	host.Init_writer(argv[9])
-	path := host.Make_aster_path(host.Cityindex["鰺ヶ沢町"], host.Cityindex["二戸市"], 0.03, -1, true)
-	host.Register_new_path(5.0, 1.0, 0.5, 0.3)
-	for _, ptar := range path {
-		host.Write_path_point(ptar.Longitude, ptar.Latitude)
+	urbandata_file, err := os.Create(argv[10])
+    if err != nil {
+		fmt.Println("Error : urbandata : Failed to create file.")
+		os.Exit(2)
+    }
+
+	var urbandata [][]int
+	urbandata = make([][]int, host.Image_pixel_h, host.Image_pixel_h)
+	for i := 0; i < host.Image_pixel_h; i++{
+		urbandata[i] = make([]int, host.Image_pixel_w, host.Image_pixel_w)
 	}
-	host.Writer.Flush()
+	
+	for _, city := range host.Citydata {
+		
+	}
+
+
+
 }
