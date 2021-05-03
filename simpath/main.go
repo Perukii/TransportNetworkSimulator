@@ -95,12 +95,17 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 	}
 
 	get_score := func(tar LgLt, parent LgLt) float64{
+
+		height := get_height(tar)
+		hdist := math.Abs(height-get_height(parent))
+		if height == 0 {
+			return -1
+		}
+
 		lgd := (tar.longitude - city_b.Longitude)*host.lglt_ratio
 		ltd := tar.latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 
-		height := get_height(tar)
-		hdist := math.Abs(height-get_height(parent))
 		return distance + hdist/2000
 	}
 
@@ -115,6 +120,11 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 		point.parent = parent
 		point.score = get_score(tar, parent)
 		point.lglt = tar
+
+		if point.score < 0 {
+			point.flag = 2
+			return 
+		}
 		
 
 		ad := len(point_list)
@@ -159,7 +169,6 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 	for {
 		
 		ad := open_list.Left().Value.(int)
-		//point_list[ad].parent = ptar
 		ptar = point_list[ad].lglt
 		
 		up := toLgLt(ptar.longitude     				, ptar.latitude+pitv)
@@ -182,6 +191,7 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 
 	host.register_new_path(width, r, g, b)
 	btar := ptar
+	host.write_path_point(city_b.Longitude, city_b.Latitude)
 	for {
 		host.write_path_point((ptar.longitude+btar.longitude)/2, (ptar.latitude+btar.latitude)/2)
 		
@@ -191,16 +201,15 @@ func (host *SpHost) make_aster_path(index_a, index_b int, pitv, width, r, g, b f
 		btar = ptar
 		ptar = point_list[point_index[ptar]].parent
 	}
+	host.write_path_point(city_a.Longitude, city_a.Latitude)
 
-	
+
 	for _, iad := range open_list.Values() {
 		ad := iad.(int)
 		host.register_new_path(5.0, r*0.5, g*0.5, b*0.5)
 		host.write_path_point(point_list[ad].lglt.longitude, point_list[ad].lglt.latitude)
 		host.write_path_point(point_list[ad].lglt.longitude, point_list[ad].lglt.latitude+0.01)
 	}
-	
-
 }
 
 
@@ -234,6 +243,6 @@ func main(){
 	}
 
 	host.init_writer(argv[9])
-	host.make_aster_path(host.cityindex["富谷市"], host.cityindex["五所川原市"], 0.03, 5.0, 1.0, 0.5, 0.3)
+	host.make_aster_path(host.cityindex["鰺ヶ沢町"], host.cityindex["むつ市"], 0.03, 5.0, 1.0, 0.5, 0.3)
 	host.writer.Flush()
 }

@@ -29,6 +29,7 @@ func main(){
 	longitude_e := library.Atof(argv[6])
 	latitude_s := library.Atof(argv[7])
 	latitude_e := library.Atof(argv[8])
+	fix_length := float64(image_pixel_h)/1875.0
 
 	heightdata := library.RequestHeightData(argv[0], image_pixel_w, image_pixel_h, data_digit)
 	citydata := library.RequestCityData(argv[4], image_pixel_w, image_pixel_h, data_digit)
@@ -55,7 +56,7 @@ func main(){
 
 
 	for _, pp := range pathdata {
-		surface.SetLineWidth(pp.Width)
+		surface.SetLineWidth(pp.Width*fix_length)
 		surface.SetSourceRGB(pp.R, pp.G, pp.B)
 		
 		for i := 0; i<len(pp.Longitude); i++ {
@@ -75,9 +76,10 @@ func main(){
 		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)
 		surface.SetSourceRGB(0.9, 0.2, 0.2)
 		mark_size := 30.0*math.Sqrt(float64(cp.Population)/1000000.0)
-		surface.Rectangle(point_lg-mark_size/2,
-						  point_lt-mark_size/2,
-						  mark_size, mark_size)
+		mark_size_f := mark_size*fix_length
+		surface.Rectangle(point_lg-mark_size_f/2,
+						  point_lt-mark_size_f/2,
+						  mark_size_f, mark_size_f)
 		surface.Fill()
 	}
 	surface.WriteToPNG("../view.png")

@@ -31,7 +31,7 @@ mkdir -p $DATA_DIR
 #$JPN_POSITION_DATA_FILE $CITY_DATA_FILE \
 #$LONGITUDE_START $LONGITUDE_END $LATITUDE_START $LATITUDE_END)
 #(cd citylist2data;. citylist2data.sh $CITY_LIST_FILE $CITY_DATA_FILE)
-#(cd simpath;. simpath.sh $COMMON_ARG)
+(cd simpath;. simpath.sh $COMMON_ARG)
 (cd data_output;. data_output.sh $COMMON_ARG)
 
 
