@@ -205,5 +205,7 @@ func GetXFromLongitude(tar_longitude float64, longitude_s float64, longitude_e f
 
 func GetYFromLatitude(tar_latitude float64, latitude_s float64, latitude_e float64,
 						image_pixel_h int)float64{
+	latitude_s += 0.015
+	latitude_e += 0.015
 	return (1.0-(tar_latitude-latitude_s)/(latitude_e-latitude_s))*float64(image_pixel_h)
 }
