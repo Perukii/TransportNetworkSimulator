@@ -12,12 +12,12 @@ import "github.com/ungerik/go-cairo"
 
 func main(){
 
-	fmt.Println("heightdata_viewer : processing...")
+	fmt.Println("data_output : processing...")
 
 	flag.Parse()
 	argv := flag.Args()
     if len(argv) != 10 {
-		fmt.Println("Error : heightdata_viewer : Invalid arguments.")
+		fmt.Println("Error : data_output : Invalid arguments.")
 		os.Exit(2)
     }
 
