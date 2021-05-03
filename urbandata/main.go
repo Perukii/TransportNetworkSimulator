@@ -33,7 +33,7 @@ func main(){
 	host.Cityindex = make(map[string]int)
 
 	
-	pdensity := 1000
+	pdensity := 200
 	host.Init()
 
 
@@ -51,12 +51,9 @@ func main(){
 		urbandata[i] = make([]int, host.Image_pixel_w)
 	}
 	
-	_ = pdensity
-	for i := 1; i < len(host.Citydata); i++ {
-		//if host.Citydata[i].Population == 0 { continue }
-		path := host.Make_aster_path(i, i, 0.002, 300, host.Citydata[i].Population/pdensity, false)
+	for i := 0; i < len(host.Citydata); i++ {
+		path := host.Make_aster_path(i, i, 0.0025, 500, host.Citydata[i].Population/pdensity, false)
 		for _, ptar := range path {
-			//fmt.Println(ptar.Longitude, ptar.Latitude)
 			yad := int(library.GetYFromLatitude(ptar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
 			xad := int(library.GetXFromLongitude(ptar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
 			
