@@ -10,10 +10,5 @@ RGB値差1あたりの高低差 : 3m
 
 出典(都市の座標) : https://www.gsi.go.jp/KOKUJYOHO/center.htm
 
-#,0.01,1.0,0.0,0.0
-141.154444,39.701944
-141.154444,38.268056
-140.869444,38.268056
-#,0.02,0.0,1.0,0.0
-140.103611,39.719722
-141.154444,39.701944
+出典(人口)(2015) : https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001049104&cycle=0&tclass1=000001049105&stat_infid=000031594311&tclass2val=0
+

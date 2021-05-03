@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"../library"
+	"math"
 )
 
 import "github.com/ungerik/go-cairo"
@@ -73,7 +74,7 @@ func main(){
 		point_lg := library.GetXFromLongitude(cp.Longitude, longitude_s, longitude_e, image_pixel_w)
 		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)
 		surface.SetSourceRGB(0.9, 0.2, 0.2)
-		mark_size := 20.0
+		mark_size := 30.0*math.Sqrt(float64(cp.Population)/1000000.0)
 		surface.Rectangle(point_lg-mark_size/2,
 						  point_lt-mark_size/2,
 						  mark_size, mark_size)

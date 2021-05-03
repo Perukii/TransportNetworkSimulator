@@ -240,6 +240,6 @@ func main(){
 	}
 
 	host.init_writer(argv[9])
-	host.make_aster_path(host.cityindex["Akita"], host.cityindex["Sendai"], 0.03, 5.0, 1.0, 0.5, 0.3)
+	host.make_aster_path(host.cityindex["Akita"], host.cityindex["Morioka"], 0.03, 5.0, 1.0, 0.5, 0.3)
 	host.writer.Flush()
 }

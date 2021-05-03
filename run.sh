@@ -25,7 +25,7 @@ mkdir -p $DATA_DIR
 #(cd png2heightdata;. png2heightdata.sh $IMAGE_FILE $HEIGHT_DATA_FILE \
 #$HEIGHT_DIFFELENCE $IMAGE_WIDTH $IMAGE_HEIGHT $HEIGHT_DATA_DIGIT)
 
-#(cd citylist2data;. citylist2data.sh $CITY_LIST_FILE $CITY_DATA_FILE)
+(cd citylist2data;. citylist2data.sh $CITY_LIST_FILE $CITY_DATA_FILE)
 (cd simpath;. simpath.sh $COMMON_ARG)
 
 (cd heightdata_viewer;. heightdata_viewer.sh $COMMON_ARG)

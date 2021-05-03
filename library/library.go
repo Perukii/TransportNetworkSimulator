@@ -33,6 +33,7 @@ type City struct{
 	Name string
 	Longitude float64
 	Latitude float64
+	Population int
 }
 
 func Atoi(it string) int{
@@ -123,11 +124,12 @@ func RequestCityData(file string, image_pixel_w int, image_pixel_h int, data_dig
 		
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
-			if len(itp) < 3 { continue }
+			if len(itp) < 4 { continue }
 			var cp City	
 			cp.Name = itp[0]
 			cp.Longitude = Atof(itp[1])
 			cp.Latitude = Atof(itp[2])
+			cp.Population = Atoi(itp[3])
 			citydata = append(citydata, cp)
 		}
 	}

@@ -8,12 +8,6 @@ import (
 	"../library"
 )
 
-type city struct{
-	name string
-	longitude float64
-	latitude float64
-}
-
 func Ftoa(it float64) string{
 
 	return fmt.Sprintf("%f", it)
@@ -74,14 +68,17 @@ func main(){
 		slice := strings.Split(string(buf), "\n")
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
-			var cp city
-			cp.name = itp[0]
-			cp.longitude = tonum(itp[1])
-			cp.latitude = tonum(itp[2])
+			if len(itp) != 4 { continue }
+			var cp library.City
+			cp.Name = itp[0]
+			cp.Longitude = tonum(itp[1])
+			cp.Latitude = tonum(itp[2])
+			cp.Population = library.Atoi(itp[3])
 
-			line := cp.name +
-					"," + library.Ftoa(cp.longitude) + 
-					"," + library.Ftoa(cp.latitude) + 
+			line := cp.Name +
+					"," + library.Ftoa(cp.Longitude) + 
+					"," + library.Ftoa(cp.Latitude) + 
+					"," + itp[3] + 
 					"\n"
 
 			if _, err := writer.Write([]byte(line)); err != nil {
