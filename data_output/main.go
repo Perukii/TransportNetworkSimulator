@@ -56,6 +56,8 @@ func main(){
 		}
 	}
 
+
+
 	for row := 0; row < image_pixel_h; row++{
 		for column := 0; column < image_pixel_w; column++{
 			drow := float64(row)
@@ -70,7 +72,6 @@ func main(){
 				surface.SetSourceRGB(1.0,0.8,0.2)
 			}
 			
-
 			surface.Rectangle(dcolumn, drow, 2, 2)
 			surface.Fill()
 		}
@@ -93,7 +94,7 @@ func main(){
 		}
 		surface.Stroke()
 	}
-	
+
 	for _, cp := range citydata {
 		point_lg := library.GetXFromLongitude(cp.Longitude, longitude_s, longitude_e, image_pixel_w)
 		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)
@@ -105,6 +106,8 @@ func main(){
 						  mark_size_f, mark_size_f)
 		surface.Fill()
 	}
+	
+
 
 	surface.WriteToPNG("../view.png")
 	surface.Finish()

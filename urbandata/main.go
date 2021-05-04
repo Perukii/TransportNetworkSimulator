@@ -50,7 +50,7 @@ func main(){
 		os.Exit(2)
     }
 
-	host.Writer = bufio.NewWriter(urbandata_file)
+	
 
 	var urbandata [][]int
 	urbandata = make([][]int, host.Image_pixel_h)
@@ -72,6 +72,12 @@ func main(){
 		urbanroot[i].Root = i
 		urbanroot[i].Population = host.Citydata[i].Population
 	}
+
+	height_weight := 0.02
+	dist_weight := 1000.0
+	urban_weight:= 0.0
+	pitv := 0.0022
+	sea_weight := 1000000.0
 	
 	for n := 0; n<2; n++{
 
@@ -80,7 +86,9 @@ func main(){
 			density = pdensity
 			if n == 1 { density = cdensity }
 
-			path := host.Make_aster_path(i, i, 0.0025, 300, 0, host.Citydata[i].Population/density, false)
+
+
+			path, _ := host.Make_aster_path(i, i, pitv, height_weight, dist_weight, urban_weight, sea_weight, host.Citydata[i].Population/density, false)
 			for _, ptar := range path {
 				yad := int(library.GetYFromLatitude(ptar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
 				xad := int(library.GetXFromLongitude(ptar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
@@ -105,39 +113,38 @@ func main(){
 				} else {
 					urbandata[yad][xad] = i + len(host.Citydata)
 				}
-				
-
-
 			}
 		}
-	}
 
-	for i := 0; i < host.Image_pixel_h; i++{
-		line := ""
-		for j := 0; j < host.Image_pixel_w; j++{
-			if urbandata[i][j] >= len(host.Citydata){
-				line += "2"
-			} else if urbandata[i][j] >= 0 {
-				line += "1"
+		if n == 0 {
+			host.Writer = bufio.NewWriter(areadata_file)
+			for i := 0; i < len(host.Citydata); i++{
+				if urbanroot[i].Root == i {
+					//fmt.Println(host.Citydata[i].Name, urbanroot[i].Population)
+					line := host.Citydata[i].Name + "," + library.Itoa(urbanroot[i].Population)
+					host.Write_line(line+"\n")
+				}
 			}
-			line += ","
-			
+			host.Writer.Flush()
+		} else {
+			host.Writer = bufio.NewWriter(urbandata_file)
+			for i := 0; i < host.Image_pixel_h; i++{
+				line := ""
+				for j := 0; j < host.Image_pixel_w; j++{
+					if urbandata[i][j] >= len(host.Citydata){
+						line += "2"
+					} else if urbandata[i][j] >= 0 {
+						line += "1"
+					}
+					line += ","
+					
+				}
+				line = line[0:len(line)-1]
+				host.Write_line(line+"\n")
+			}
+			host.Writer.Flush()
 		}
-		line = line[0:len(line)-1]
-		host.Write_line(line+"\n")
 	}
-	host.Writer.Flush()
-
-	host.Writer = bufio.NewWriter(areadata_file)
-	for i := 0; i < len(host.Citydata); i++{
-		if urbanroot[i].Root == i {
-			//fmt.Println(host.Citydata[i].Name, urbanroot[i].Population)
-			line := host.Citydata[i].Name + "," + library.Itoa(urbanroot[i].Population)
-			host.Write_line(line+"\n")
-		}
-	}
-	host.Writer.Flush()
-
 
 
 }

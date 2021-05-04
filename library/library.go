@@ -7,6 +7,7 @@ import (
 	"strings"
 	"bufio"
 	"io"
+	"sort"
 )
 
 type MapInfo struct{
@@ -27,6 +28,11 @@ type Path struct{
 	B float64
 	Longitude []float64
 	Latitude  []float64
+}
+
+type UrbanArea struct{
+	Name string
+	Population int
 }
 
 type City struct{
@@ -247,6 +253,48 @@ func RequestUrbanData(file string, image_pixel_w int, image_pixel_h int, data_di
 	return urbandata
 }
 
+func RequestUrbanAreaData(file string, image_pixel_w int, image_pixel_h int, data_digit int) []UrbanArea{
+
+    areadata_file, err := os.Open(file)
+    if err != nil {
+		fmt.Println("Error : library : Failed to open file.")
+		os.Exit(2)
+    }
+    defer areadata_file.Close()
+
+	var areadata []UrbanArea
+
+	reader := bufio.NewReaderSize(areadata_file, 4096)
+
+    for {
+
+        buf, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("Error : library : Failed to read file.")
+			os.Exit(2)
+        }
+		
+		slice := strings.Split(string(buf), "\n")
+
+		var area UrbanArea
+		
+		for _, it := range slice{
+			if it == "" { continue }
+			itp := strings.Split(it, ",")
+			area.Name = itp[0]
+			area.Population = Atoi(itp[1])
+
+		}
+		areadata = append(areadata, area)
+		
+	}
+
+	sort.Slice(areadata, func(i, j int) bool { return areadata[i].Population > areadata[j].Population })
+
+	return areadata
+}
 
 
 func GetXFromLongitude(tar_longitude float64, longitude_s float64, longitude_e float64,

@@ -22,6 +22,7 @@ type SpHost struct{
 	Citydata []City
 	Cityindex map[string]int
 	Urbandata [][]int
+	UrbanAreadata []UrbanArea
 }
 
 type LgLt struct{
@@ -87,12 +88,12 @@ func (host *SpHost) Init_writer(file string){
 	host.Writer = bufio.NewWriter(host.Pathdata_file)
 }
 
-func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urban_weight float64, loop int, debug bool) []LgLt{
+func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, dist_weight, urban_weight, sea_weight float64, loop int, debug bool) ([]LgLt, float64){
 	
 	
 	var point_list []PathPoint
-	var point_index map[LgLtFix]int // contains addresses of point_list
-	var open_list *rbt.Tree // contains addresses of point_list
+	var point_index map[LgLtFix]int // contains an address of point_list
+	var open_list *rbt.Tree // contains an address of point_list
 
 	open_list = rbt.NewWithIntComparator()
 
@@ -130,7 +131,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 		height, urban := get_height_and_urban(tar)
 		hdist := math.Abs(height-get_height(parent))
 		if height == 0 {
-			return -1
+			hdist *= sea_weight
 		}
 
 		var uscore float64
@@ -144,7 +145,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 		ltd := tar.Latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 		
-		return distance*dist_weight + hdist + uscore*urban_weight
+		return height*height_weight + distance*dist_weight + hdist + uscore*urban_weight
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
@@ -159,11 +160,10 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 		point.Score = get_score(tar, parent)
 		point.LgLt = tar
 
-		if point.Score < 0 {
+		if point.Score < 0{
 			point.Flag = 3
 			return 
 		}
-		
 
 		ad := len(point_list)
 		point_index[ToLgLtFix(tar)] = ad
@@ -204,15 +204,18 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 	
 	open_path_point(ptar, ptar)
 
+
 	for {
 		if open_list.Size() == 0 { break }
 		ad := open_list.Left().Value.(int)
+
 		ptar = point_list[ad].LgLt
 		
 		up := ToLgLt(ptar.Longitude     				, ptar.Latitude+pitv)
 		dw := ToLgLt(ptar.Longitude     				, ptar.Latitude-pitv)
 		lf := ToLgLt(ptar.Longitude-pitv*host.LgLt_ratio, ptar.Latitude     )
 		rg := ToLgLt(ptar.Longitude+pitv*host.LgLt_ratio, ptar.Latitude     )
+
 		
 		open_path_point(up, ptar)
 		open_path_point(dw, ptar)
@@ -244,6 +247,8 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 		}
 	}
 	var res []LgLt
+	length := 0.0
+	
 	if loop < 0{
 		
 		res = append(res, ToLgLt(city_b.Longitude, city_b.Latitude))
@@ -258,6 +263,13 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 			ptar = point_list[point_index[ToLgLtFix(ptar)]].Parent
 		}
 		res = append(res, ToLgLt(city_a.Longitude, city_a.Latitude))
+
+		for i := 1; i < len(res); i++ {
+			lgd := (res[i].Longitude - res[i-1].Longitude)/host.LgLt_ratio
+			ltd := res[i].Latitude - res[i-1].Latitude
+			distance := math.Sqrt(lgd*lgd+ltd*ltd)
+			length += distance
+		}
 		
 	} else {
 		for _, tar := range point_list{
@@ -265,6 +277,6 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urb
 			res = append(res, tar.LgLt)
 		} 
 	}
-	return res
+	return res, length
 
 }

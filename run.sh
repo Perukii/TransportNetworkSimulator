@@ -30,9 +30,9 @@ mkdir -p $DATA_DIR
 #(cd png2heightdata;. png2heightdata.sh $IMAGE_FILE $HEIGHT_DATA_FILE \
 #$HEIGHT_DIFFELENCE $IMAGE_WIDTH $IMAGE_HEIGHT $HEIGHT_DATA_DIGIT)
 
-#(cd citydatabase2data;. citydatabase2data.sh $JPN_POPULATION_DATA_FILE \
-#$JPN_POSITION_DATA_FILE $CITY_DATA_FILE \
-#$LONGITUDE_START $LONGITUDE_END $LATITUDE_START $LATITUDE_END)
+(cd citydatabase2data;. citydatabase2data.sh $JPN_POPULATION_DATA_FILE \
+$JPN_POSITION_DATA_FILE $CITY_DATA_FILE \
+$LONGITUDE_START $LONGITUDE_END $LATITUDE_START $LATITUDE_END)
 (cd urbandata;. urbandata.sh $COMMON_ARG)
 (cd simpath;. simpath.sh $COMMON_ARG)
 (cd data_output;. data_output.sh $COMMON_ARG)
