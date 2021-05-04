@@ -37,6 +37,7 @@ type City struct{
 }
 
 func Atoi(it string) int{
+	if it == "" { return -1 }
 	value, err := strconv.Atoi(it)
 	if err != nil {
 		fmt.Println("Error : library : ", err)
@@ -59,6 +60,7 @@ func Ftoa(it float64) string{
 }
 
 func Itoa(it int) string{
+
 	return fmt.Sprintf("%d", it)
 }
 
@@ -249,12 +251,13 @@ func RequestUrbanData(file string, image_pixel_w int, image_pixel_h int, data_di
 
 func GetXFromLongitude(tar_longitude float64, longitude_s float64, longitude_e float64,
 						image_pixel_w int)float64{
+
 	return (tar_longitude-longitude_s)/(longitude_e-longitude_s)*float64(image_pixel_w)
 }
 
 func GetYFromLatitude(tar_latitude float64, latitude_s float64, latitude_e float64,
 						image_pixel_h int)float64{
-	latitude_s += 0.015
-	latitude_e += 0.015
+	latitude_s += 0.016
+	latitude_e += 0.016
 	return (1.0-(tar_latitude-latitude_s)/(latitude_e-latitude_s))*float64(image_pixel_h)
 }

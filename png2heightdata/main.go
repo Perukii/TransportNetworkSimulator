@@ -68,7 +68,7 @@ func main(){
 			target := get_height(x, y)
 			if x >= bounds.Min.X+1 && x < bounds.Max.X-1 {
 				lf, rg := get_height(x-1, y), get_height(x+1, y)
-				if target > lf && target > rg {
+				if target > lf && target > rg{
 					if math.Max(math.Abs(target-lf), math.Abs(target-rg)) > bias{
 						target = math.Max(lf, rg)
 					}
@@ -76,13 +76,12 @@ func main(){
 			}
 			if y >= bounds.Min.Y+1 && y < bounds.Max.Y-1 {
 				up, dw := get_height(x, y-1), get_height(x, y+1)
-				if target > up && target > dw {
+				if target > up && target > dw{
 					if math.Max(math.Abs(target-up), math.Abs(target-dw)) > bias{
 						target = math.Max(up, dw)
 					}
 				}
 			}
-
 			snum := library.Itoa(int(target))
 
 			for {

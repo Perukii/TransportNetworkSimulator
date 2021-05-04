@@ -21,6 +21,7 @@ type SpHost struct{
 	Heightdata [][]int
 	Citydata []City
 	Cityindex map[string]int
+	Urbandata [][]int
 }
 
 type LgLt struct{
@@ -86,7 +87,7 @@ func (host *SpHost) Init_writer(file string){
 	host.Writer = bufio.NewWriter(host.Pathdata_file)
 }
 
-func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight float64, loop int, debug bool) []LgLt{
+func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight, urban_weight float64, loop int, debug bool) []LgLt{
 	
 	
 	var point_list []PathPoint
@@ -100,30 +101,50 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight floa
 	city_b := &host.Citydata[index_b]
 	ptar := ToLgLt(city_a.Longitude, city_a.Latitude)
 
-	get_height := func(tar LgLt) float64{
+	get_height_and_urban := func(tar LgLt) (float64, int){
+
 		yad := int(GetYFromLatitude(tar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
 		xad := int(GetXFromLongitude(tar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
 		if yad < 0 || yad >= host.Image_pixel_h || xad < 0 || xad >= host.Image_pixel_w{
-			return 0.0
+			return 0.0, 0
 		}
 			
-		fheight := float64(host.Heightdata[yad][xad])
-		return fheight
+		height := float64(host.Heightdata[yad][xad])
+		var urban int
+		if urban_weight == 0{
+			urban = 0
+		} else {
+			urban = host.Urbandata[yad][xad]
+		}
+		
+		return height, urban
+	}
+
+	get_height := func(tar LgLt) float64{
+		height,_ := get_height_and_urban(tar)
+		return height
 	}
 
 	get_score := func(tar LgLt, parent LgLt) float64{
 
-		height := get_height(tar)
+		height, urban := get_height_and_urban(tar)
 		hdist := math.Abs(height-get_height(parent))
 		if height == 0 {
 			return -1
 		}
 
+		var uscore float64
+		if urban == -1 {
+			uscore = 1.0
+		} else {
+			uscore = 0.0
+		}
+
 		lgd := (tar.Longitude - city_b.Longitude)/host.LgLt_ratio
 		ltd := tar.Latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
-		_,_ = distance, hdist
-		return distance + hdist/dist_weight
+		
+		return distance*dist_weight + hdist + uscore*urban_weight
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
@@ -146,7 +167,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, dist_weight floa
 
 		ad := len(point_list)
 		point_index[ToLgLtFix(tar)] = ad
-		idscore := int(math.Floor(point.Score*10000))
+		idscore := int(math.Floor(point.Score))
 		for{
 			_, found := open_list.Get(idscore)
 			if found == true {

@@ -15,7 +15,7 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 10 {
+    if len(argv) != 11 {
 		fmt.Println("Error : simpath : Invalid arguments.")
 		os.Exit(2)
     }
@@ -33,12 +33,14 @@ func main(){
 	host.Heightdata = library.RequestHeightData(argv[0], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	host.Citydata = library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	host.Cityindex = make(map[string]int)
+	host.Urbandata = library.RequestUrbanData(argv[10], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 
 	host.Init()
 	host.Init_writer(argv[9])
 	
-	path := host.Make_aster_path(host.Cityindex["鰺ヶ沢町"], host.Cityindex["むつ市"], 0.03, 2000, -1, true)
-	host.Register_new_path(5.0, 1.0, 0.5, 0.3)
+
+	path := host.Make_aster_path(host.Cityindex["久慈市"], host.Cityindex["気仙沼市"], 0.008, 1500, 100, -1, true)
+	host.Register_new_path(3.0, 0.8, 0.4, 0.2)
 	for _, ptar := range path {
 		host.Write_path_point(ptar.Longitude, ptar.Latitude)
 	}
