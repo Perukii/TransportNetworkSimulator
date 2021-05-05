@@ -21,6 +21,7 @@ func main(){
 	var host library.SpHost
 
 	host.ApplyCommonArgument(argv)
+	host.Height_difference_score = host.Urban_area_height_difference_score
 
 	host.Init()
 
@@ -71,7 +72,7 @@ func main(){
 			for _, ptar := range path {
 				yad := int(library.GetYFromLatitude(ptar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
 				xad := int(library.GetXFromLongitude(ptar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))
-				
+				data := -1
 				if yad < 0 || yad >= host.Image_pixel_h || xad < 0 || xad >= host.Image_pixel_w{
 					continue
 				}
@@ -88,13 +89,43 @@ func main(){
 							urbanroot[cmp].Population = 0
 						}
 					}
-					urbandata[yad][xad] = i
+					data = i
+
+					
 				} else {
-					urbandata[yad][xad] = i + len(host.Citydata)
+					data = i + len(host.Citydata)
 				}
+				
+				urbandata[yad][xad] = data
+				/*
+				if xad >= 1 { urbandata[yad][xad-1] = data }
+				if yad >= 1 { urbandata[yad-1][xad] = data }
+				if xad < host.Image_pixel_w-1 { urbandata[yad][xad+1] = data }
+				if yad < host.Image_pixel_h-1 { urbandata[yad+1][xad] = data }
+				*/
+
 			}
 		}
 
+		
+		for i := 0; i < host.Image_pixel_h; i++{
+			for j := 0; j < host.Image_pixel_w; j++{
+				var void int
+				if n == 0 {
+					void = 0
+				} else {
+					void = len(host.Citydata)
+				}
+				if urbandata[i][j] >= void {
+					data := urbandata[i][j]
+					if j >= 1 && urbandata[i][j-1] < void { urbandata[i][j-1] = data }
+					if i >= 1 && urbandata[i-1][j] < void { urbandata[i-1][j] = data }
+					//if j < host.Image_pixel_w-1 && urbandata[i][j+1] == -1{ urbandata[i][j+1] = data }
+					//if i < host.Image_pixel_h-1 && urbandata[i+1][j] == -1{ urbandata[i+1][j] = data }
+				}
+			}
+		}
+		
 		if n == 0 {
 			host.Writer = bufio.NewWriter(areadata_file)
 			for i := 0; i < len(host.Citydata); i++{

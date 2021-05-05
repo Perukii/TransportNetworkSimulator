@@ -32,6 +32,7 @@ type SpHost struct{
 	Urban_area_interval float64
 	Urban_wide_area_density int
 	Urban_central_area_density int
+	Urban_area_height_difference_score float64
 
 	Heightdata [][]int
 	Citydata []City
@@ -97,7 +98,8 @@ func (host *SpHost) ApplyCommonArgument(argv []string){
 	host.Kruskal_path_max_cross = Atoi(argv[20])
 	host.Path_release_interval = Atof(argv[21])
 	host.Path_draft_interval = Atof(argv[22])
-	host.Urban_area_interval = Atof(argv[23])
+	host.Urban_area_interval = (host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h)
+	host.Urban_area_height_difference_score = Atof(argv[23])
 	host.Urban_wide_area_density = Atoi(argv[24])
 	host.Urban_central_area_density = Atoi(argv[25])
 }

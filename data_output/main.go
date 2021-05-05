@@ -72,7 +72,7 @@ func main(){
 				surface.SetSourceRGB(1.0,0.8,0.2)
 			}
 			
-			surface.Rectangle(dcolumn, drow, 2, 2)
+			surface.Rectangle(dcolumn, drow, 1, 1)
 			surface.Fill()
 		}
 	}
