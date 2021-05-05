@@ -29,7 +29,7 @@ KRUSKAL_PATH_MAX_CROSS="8"
 PATH_RELEASE_INTERVAL="0.005"
 # パスのコスト計算に利用するA*路の粗さ
 PATH_DRAFT_INTERVAL="0.02"
-# 都市圏の範囲の定義に利用するA*路の粗さ
+# 都市圏の範囲の定義における高低差の影響度
 URBAN_AREA_HEIGHT_DIFFELENCE_SCORE="2.0"
 # 広域都市圏の範囲の密集度
 URBAN_WIDE_AREA_DENSITY="50"
