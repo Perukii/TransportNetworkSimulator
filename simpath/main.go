@@ -208,7 +208,6 @@ func main(){
 			host.UrbanAreadata[edge_list[i].a].Name,
 			host.UrbanAreadata[edge_list[i].b].Name,
 		)
-		
 	
 		edge_board[edge_list[i].a] = append(edge_board[edge_list[i].a], edge_list[i].b)
 		edge_board[edge_list[i].b] = append(edge_board[edge_list[i].b], edge_list[i].a)
@@ -219,7 +218,6 @@ func main(){
 			res_pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight, -1, false)
 		host.Register_new_path(3.0, 0.8, 0.4, 0.2)
 		for _, ptar := range path {
-
 			host.Write_path_point(ptar.Longitude, ptar.Latitude)
 		}
 	}
