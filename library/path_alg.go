@@ -88,7 +88,7 @@ func (host *SpHost) Init_writer(file string){
 	host.Writer = bufio.NewWriter(host.Pathdata_file)
 }
 
-func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, dist_weight, urban_weight, sea_weight float64, loop int, debug bool) ([]LgLt, float64){
+func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight float64, loop int, debug bool) ([]LgLt, float64){
 	
 	
 	var point_list []PathPoint
@@ -130,8 +130,9 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, d
 
 		height, urban := get_height_and_urban(tar)
 		hdist := math.Abs(height-get_height(parent))
+		sea_point := 0.0
 		if height == 0 {
-			hdist *= sea_weight
+			sea_point = sea_weight
 		}
 
 		var uscore float64
@@ -145,7 +146,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, d
 		ltd := tar.Latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 		
-		return height*height_weight + distance*dist_weight + hdist + uscore*urban_weight
+		return height*height_weight + distance*dist_weight + hdist*height_diff_weight + uscore*urban_weight + sea_point
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
