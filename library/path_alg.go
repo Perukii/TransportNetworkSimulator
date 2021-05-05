@@ -18,6 +18,21 @@ type SpHost struct{
 	Latitude_e float64
 	LgLt_ratio float64
 
+	Height_score float64
+	Height_difference_score float64
+	Distance_score float64
+	Urban_area_score float64
+	Sea_area_score float64
+	Population_score float64
+	Kruskal_path_min_population int
+	Kruskal_path_max_angle_difference float64
+	Kruskal_path_max_cross int
+	Path_release_interval float64
+	Path_draft_interval float64
+	Urban_area_interval float64
+	Urban_wide_area_density int
+	Urban_central_area_density int
+
 	Heightdata [][]int
 	Citydata []City
 	Cityindex map[string]int
@@ -56,6 +71,37 @@ func ToLgLtFix(lglt LgLt) LgLtFix{
 	return res
 }
 
+func (host *SpHost) ApplyCommonArgument(argv []string){
+	host.Image_pixel_w = Atoi(argv[1])
+	host.Image_pixel_h = Atoi(argv[2])
+	host.Data_digit = Atoi(argv[3])
+	host.Longitude_s = Atof(argv[5])
+	host.Longitude_e = Atof(argv[6])
+	host.Latitude_s = Atof(argv[7])
+	host.Latitude_e = Atof(argv[8])
+	host.LgLt_ratio = ((host.Longitude_s-host.Longitude_e)/float64(host.Image_pixel_w))/((host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h))
+	host.Heightdata = RequestHeightData(argv[0], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	host.Citydata = RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	host.Cityindex = make(map[string]int)
+	host.Urbandata = RequestUrbanData(argv[10], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	host.UrbanAreadata = RequestUrbanAreaData(argv[11], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	
+	host.Height_score = Atof(argv[12])
+	host.Height_difference_score = Atof(argv[13])
+	host.Distance_score = Atof(argv[14])
+	host.Urban_area_score = Atof(argv[15])
+	host.Sea_area_score = Atof(argv[16])
+	host.Population_score = Atof(argv[17])
+	host.Kruskal_path_min_population = Atoi(argv[18])
+	host.Kruskal_path_max_angle_difference = Atof(argv[19])
+	host.Kruskal_path_max_cross = Atoi(argv[20])
+	host.Path_release_interval = Atof(argv[21])
+	host.Path_draft_interval = Atof(argv[22])
+	host.Urban_area_interval = Atof(argv[23])
+	host.Urban_wide_area_density = Atoi(argv[24])
+	host.Urban_central_area_density = Atoi(argv[25])
+}
+
 func (host *SpHost) Init(){
 	for i := 0; i < len(host.Citydata); i++{
 		host.Cityindex[host.Citydata[i].Name] = i
@@ -88,7 +134,7 @@ func (host *SpHost) Init_writer(file string){
 	host.Writer = bufio.NewWriter(host.Pathdata_file)
 }
 
-func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight float64, loop int, debug bool) ([]LgLt, float64){
+func (host *SpHost) Make_aster_path(index_a, index_b int, interval float64, loop int, debug bool) ([]LgLt, float64){
 	
 	
 	var point_list []PathPoint
@@ -112,7 +158,7 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, h
 			
 		height := float64(host.Heightdata[yad][xad])
 		var urban int
-		if urban_weight == 0{
+		if host.Urban_area_score == 0{
 			urban = 0
 		} else {
 			urban = host.Urbandata[yad][xad]
@@ -130,9 +176,9 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, h
 
 		height, urban := get_height_and_urban(tar)
 		hdist := math.Abs(height-get_height(parent))
-		sea_point := 0.0
+		seascore := 0.0
 		if height == 0 {
-			sea_point = sea_weight
+			seascore = host.Sea_area_score
 		}
 
 		var uscore float64
@@ -146,7 +192,11 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, h
 		ltd := tar.Latitude - city_b.Latitude
 		distance := math.Sqrt(lgd*lgd+ltd*ltd)
 		
-		return height*height_weight + distance*dist_weight + hdist*height_diff_weight + uscore*urban_weight + sea_point
+		return height*host.Height_score +
+			   distance*host.Distance_score +
+			   hdist*host.Height_difference_score +
+			   uscore*host.Urban_area_score +
+			   seascore
 	}
 
 	open_path_point := func(tar LgLt, parent LgLt){
@@ -212,10 +262,10 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, h
 
 		ptar = point_list[ad].LgLt
 		
-		up := ToLgLt(ptar.Longitude     				, ptar.Latitude+pitv)
-		dw := ToLgLt(ptar.Longitude     				, ptar.Latitude-pitv)
-		lf := ToLgLt(ptar.Longitude-pitv*host.LgLt_ratio, ptar.Latitude     )
-		rg := ToLgLt(ptar.Longitude+pitv*host.LgLt_ratio, ptar.Latitude     )
+		up := ToLgLt(ptar.Longitude     				, ptar.Latitude+interval)
+		dw := ToLgLt(ptar.Longitude     				, ptar.Latitude-interval)
+		lf := ToLgLt(ptar.Longitude-interval*host.LgLt_ratio, ptar.Latitude     )
+		rg := ToLgLt(ptar.Longitude+interval*host.LgLt_ratio, ptar.Latitude     )
 
 		
 		open_path_point(up, ptar)
@@ -226,8 +276,8 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, pitv, height_weight, h
 		close_path_point(ptar)
 
 		if loop < 0 &&
-		   math.Abs(ptar.Longitude-city_b.Longitude) <= pitv &&
-		   math.Abs(ptar.Latitude-city_b.Latitude) <= pitv{
+		   math.Abs(ptar.Longitude-city_b.Longitude) <= interval &&
+		   math.Abs(ptar.Latitude-city_b.Latitude) <= interval{
 			break
 		} else {
 			if loop == 0 {

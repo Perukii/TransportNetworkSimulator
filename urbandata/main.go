@@ -13,26 +13,14 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 12 {
+    if len(argv) != 26 {
 		fmt.Println("Error : urbandata : Invalid arguments.")
 		os.Exit(2)
     }
 
 	var host library.SpHost
 
-	host.Image_pixel_w = library.Atoi(argv[1])
-	host.Image_pixel_h = library.Atoi(argv[2])
-	host.Data_digit = library.Atoi(argv[3])
-	host.Longitude_s = library.Atof(argv[5])
-	host.Longitude_e = library.Atof(argv[6])
-	host.Latitude_s = library.Atof(argv[7])
-	host.Latitude_e = library.Atof(argv[8])
-	host.LgLt_ratio = ((host.Longitude_s-host.Longitude_e)/float64(host.Image_pixel_w))/((host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h))
-	host.Heightdata = library.RequestHeightData(argv[0], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	host.Citydata = library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	host.Cityindex = make(map[string]int)
-
-	
+	host.ApplyCommonArgument(argv)
 
 	host.Init()
 
@@ -72,26 +60,14 @@ func main(){
 		urbanroot[i].Population = host.Citydata[i].Population
 	}
 
-	pdensity := 30
-	cdensity := 180
-
-	height_weight := 0.02
-	height_diff_weight := 1.0
-	dist_weight := 1000.0
-	urban_weight:= 0.0
-	pitv := 0.0022
-	sea_weight := 1000000.0
-	
 	for n := 0; n<2; n++{
 
 		for i := 0; i < len(host.Citydata); i++ {
 			var density int
-			density = pdensity
-			if n == 1 { density = cdensity }
+			density = host.Urban_wide_area_density
+			if n == 1 { density = host.Urban_central_area_density }
 
-
-
-			path, _ := host.Make_aster_path(i, i, pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight, host.Citydata[i].Population/density, false)
+			path, _ := host.Make_aster_path(i, i, host.Urban_area_interval, host.Citydata[i].Population/density, false)
 			for _, ptar := range path {
 				yad := int(library.GetYFromLatitude(ptar.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h))
 				xad := int(library.GetXFromLongitude(ptar.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w))

@@ -7,7 +7,6 @@ import (
 	"../library"
 	"sort"
 	"math"
-	//rbt "github.com/emirpasic/gods/trees/redblacktree"
 )
 
 
@@ -17,38 +16,17 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 12 {
-		fmt.Println("Error : simpath : Invalid arguments.")
+    if len(argv) != 26 {
+		fmt.Println("Error : simpath : Invalid arguments.", len(argv))
 		os.Exit(2)
     }
 
 	var host library.SpHost
 
-	host.Image_pixel_w = library.Atoi(argv[1])
-	host.Image_pixel_h = library.Atoi(argv[2])
-	host.Data_digit = library.Atoi(argv[3])
-	host.Longitude_s = library.Atof(argv[5])
-	host.Longitude_e = library.Atof(argv[6])
-	host.Latitude_s = library.Atof(argv[7])
-	host.Latitude_e = library.Atof(argv[8])
-	host.LgLt_ratio = ((host.Longitude_s-host.Longitude_e)/float64(host.Image_pixel_w))/((host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h))
-	host.Heightdata = library.RequestHeightData(argv[0], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	host.Citydata = library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	host.Cityindex = make(map[string]int)
-	host.Urbandata = library.RequestUrbanData(argv[10], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	host.UrbanAreadata = library.RequestUrbanAreaData(argv[11], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
-	
+	host.ApplyCommonArgument(argv)
+
 	host.Init()
 	host.Init_writer(argv[9])
-	/*
-	path, distance := host.Make_aster_path(host.Cityindex["佐渡市"], host.Cityindex["仙台市青葉区"], 0.008, 1500, 0, 10, -1, true)
-	host.Register_new_path(3.0, 0.8, 0.4, 0.2)
-	for _, ptar := range path {
-		host.Write_path_point(ptar.Longitude, ptar.Latitude)
-	}
-	fmt.Println(distance)
-	host.Writer.Flush()
-	*/
 
 	var get_angle = func(a, b int) float64{
 		city_a := host.Citydata[a]
@@ -79,26 +57,13 @@ func main(){
 	}
 
 	
-	height_weight := 0.1
-	height_diff_weight := 1.4
-	dist_weight := 1300.0
-	urban_weight:= 0.0
-	cmp_pitv := 0.02
-	res_pitv := 0.005
-	sea_weight := 2000.0
-	population_weight := -0.000001
-	// クラスカル路を適用する都市の最小の人口
-	min_area_pop := 20000
-	// 非クラスカル路を採用するのに満たす必要のある、一つの都市に対する対象のパスと他都市間のパスとの角度の差の最小値の下限
-	angle_limit := 80.0
-	// パスのスコア計算にて、一つの都市が比較を行う都市の数
-	search_limit := 8
+
 	
 	var area_num int
 	var group []int
 
 	for i := 0; i<len(host.UrbanAreadata); i++ {
-		if host.UrbanAreadata[i].Population >= min_area_pop {
+		if host.UrbanAreadata[i].Population >= host.Kruskal_path_min_population {
 			group = append(group, i)
 			area_num++
 		} else {
@@ -120,9 +85,9 @@ func main(){
 		ca := host.Cityindex[host.UrbanAreadata[edge.a].Name]
 		cb := host.Cityindex[host.UrbanAreadata[edge.b].Name]
 		_, path_sc := host.Make_aster_path(ca, cb,
-										   cmp_pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight, -1, false)
+										   host.Path_draft_interval, -1, false)
 		population := float64(host.Citydata[ca].Population+host.Citydata[cb].Population)
-		return path_sc + population*population_weight
+		return path_sc - population*host.Population_score
 	}
 
 	get_group := func(ad int) int {
@@ -147,7 +112,7 @@ func main(){
 	var edge_list []Edge
 	var edge_board [][]int
 	edge_board = make([][]int, area_num)
-	_, _, _ = get_angle, get_angle_dist, angle_limit
+	_, _, _ = get_angle, get_angle_dist, host.Kruskal_path_max_angle_difference
 
 	for i := 0; i<area_num; i++ {
 		var edge_cmp []Edge
@@ -160,7 +125,7 @@ func main(){
 			edge_cmp = append(edge_cmp, edge)
 		}
 		sort.Slice(edge_cmp, func(i, j int) bool { return edge_cmp[i].dist < edge_cmp[j].dist })
-		for j := 0; j<search_limit; j++{
+		for j := 0; j<host.Kruskal_path_max_cross; j++{
 			if len(edge_cmp) <= j { break } 
 			edge_cmp[j].score = get_score(edge_cmp[j])
 			edge_list = append(edge_list, edge_cmp[j])
@@ -197,17 +162,12 @@ func main(){
 				min_angle = math.Min(min_angle, get_angle_dist(bcomp, get_angle(bindex, index)))
 			}
 
-			if min_angle < angle_limit {
+			if min_angle < host.Kruskal_path_max_angle_difference {
 				continue
 			}
 		} else{
 			group[gb] = edge_list[i].a
 		}
-		
-		fmt.Println(min_angle,
-			host.UrbanAreadata[edge_list[i].a].Name,
-			host.UrbanAreadata[edge_list[i].b].Name,
-		)
 	
 		edge_board[edge_list[i].a] = append(edge_board[edge_list[i].a], edge_list[i].b)
 		edge_board[edge_list[i].b] = append(edge_board[edge_list[i].b], edge_list[i].a)
@@ -215,7 +175,7 @@ func main(){
 		path, _ := host.Make_aster_path(
 			host.Cityindex[host.UrbanAreadata[edge_list[i].a].Name],
 			host.Cityindex[host.UrbanAreadata[edge_list[i].b].Name],
-			res_pitv, height_weight, height_diff_weight, dist_weight, urban_weight, sea_weight, -1, false)
+			host.Path_release_interval, -1, false)
 		host.Register_new_path(3.0, 0.8, 0.4, 0.2)
 		for _, ptar := range path {
 			host.Write_path_point(ptar.Longitude, ptar.Latitude)
