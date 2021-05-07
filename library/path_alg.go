@@ -36,7 +36,8 @@ type SpHost struct{
 	Max_path_distance_per_city_distance float64
 	Max_bridge_distance float64
 	Max_city_distance float64
-
+	
+	Project_name string
 
 	Heightdata [][]int
 	Citydata []City
@@ -78,7 +79,7 @@ func ToLgLtFix(lglt LgLt) LgLtFix{
 
 func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	
-	if len(argv) != 29 { return -1 }
+	if len(argv) != 30 { return -1 }
 	host.Image_pixel_w = Atoi(argv[1])
 	host.Image_pixel_h = Atoi(argv[2])
 	host.Data_digit = Atoi(argv[3])
@@ -111,6 +112,7 @@ func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	host.Max_path_distance_per_city_distance = Atof(argv[26])
 	host.Max_bridge_distance = Atof(argv[27])
 	host.Max_city_distance = Atof(argv[28])
+	host.Project_name = argv[29]
 	return 1
 }
 

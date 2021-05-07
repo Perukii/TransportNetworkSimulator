@@ -12,30 +12,30 @@ import (
 
 func main(){
 
-	fmt.Println("citydababase2data : processing...")
+	fmt.Println("citydatabase2data : processing...")
 	
 	flag.Parse()
 	argv := flag.Args()
     if len(argv) != 7 {
-		fmt.Println("Error : citydababase2data : Invalid arguments.")
+		fmt.Println("Error : citydatabase2data : Invalid arguments.")
 		os.Exit(2)
     }
 	
     population_file, err := os.Open(argv[0])
     if err != nil {
-		fmt.Println("Error : citydababase2data : Failed to open file.")
+		fmt.Println("Error : citydatabase2data : Failed to open file.")
 		os.Exit(2)
     }
 	
     position_file, err := os.Open(argv[1])
     if err != nil {
-		fmt.Println("Error : citydababase2data : Failed to open file.")
+		fmt.Println("Error : citydatabase2data : Failed to open file.")
 		os.Exit(2)
     }
 
     citydata_file, err := os.Create(argv[2])
     if err != nil {
-		fmt.Println("Error : citydababase2data : Failed to create file.")
+		fmt.Println("Error : citydatabase2data : Failed to create file.")
 		os.Exit(2)
     }
 
@@ -61,7 +61,7 @@ func main(){
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("Error : citydababase2data : Failed to read file.")
+			fmt.Println("Error : citydatabase2data : Failed to read file.")
 			os.Exit(2)
         }
 
@@ -93,7 +93,7 @@ func main(){
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("Error : citydababase2data : Failed to read file.")
+			fmt.Println("Error : citydatabase2data : Failed to read file.")
 			os.Exit(2)
         }
 
@@ -139,7 +139,7 @@ func main(){
 			"\n"
 
 		if _, err := writer.Write([]byte(line)); err != nil {
-			fmt.Println("Error : citydababase2data : Failed to write file.")
+			fmt.Println("Error : citydatabase2data : Failed to write file.")
 			os.Exit(2)
 		}
 	}

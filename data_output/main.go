@@ -16,37 +16,32 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 11 {
+	
+	var host library.SpHost
+	
+    if host.ApplyCommonArgument(argv) < 0 {
 		fmt.Println("Error : data_output : Invalid arguments.")
 		os.Exit(2)
     }
 
+	fix_length := float64(host.Image_pixel_h)/1875.0
 
-	image_pixel_w := library.Atoi(argv[1])
-	image_pixel_h := library.Atoi(argv[2])
-	data_digit := library.Atoi(argv[3])
-	longitude_s := library.Atof(argv[5])
-	longitude_e := library.Atof(argv[6])
-	latitude_s := library.Atof(argv[7])
-	latitude_e := library.Atof(argv[8])
-	fix_length := float64(image_pixel_h)/1875.0
+	//host.Heightdata := library.RequestHeightData(argv[0], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	//host.Citydata := library.RequestCityData(argv[4], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	pathdata := library.RequestPathData(argv[9], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
+	//host.Urbandata := library.RequestUrbanData(argv[10], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 
-	heightdata := library.RequestHeightData(argv[0], image_pixel_w, image_pixel_h, data_digit)
-	citydata := library.RequestCityData(argv[4], image_pixel_w, image_pixel_h, data_digit)
-	pathdata := library.RequestPathData(argv[9], image_pixel_w, image_pixel_h, data_digit)
-	urbandata := library.RequestUrbanData(argv[10], image_pixel_w, image_pixel_h, data_digit)
-
-	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, image_pixel_w, image_pixel_h)
+	surface := cairo.NewSurface(cairo.FORMAT_ARGB32, host.Image_pixel_w, host.Image_pixel_h)
 
 
-	for row := 0; row < image_pixel_h; row++{
-		for column := 0; column < image_pixel_w; column++{
+	for row := 0; row < host.Image_pixel_h; row++{
+		for column := 0; column < host.Image_pixel_w; column++{
 			drow := float64(row)
 			dcolumn := float64(column)
-			if heightdata[row][column] == 0 {
+			if host.Heightdata[row][column] == 0 {
 				continue
 			} else {
-				color := float64(heightdata[row][column])/2000
+				color := float64(host.Heightdata[row][column])/2000
 
 				surface.SetSourceRGB(0.6-color*0.2, 0.9-color*0.7, 0.4-color*0.4)
 			}
@@ -58,17 +53,17 @@ func main(){
 
 
 
-	for row := 0; row < image_pixel_h; row++{
-		for column := 0; column < image_pixel_w; column++{
+	for row := 0; row < host.Image_pixel_h; row++{
+		for column := 0; column < host.Image_pixel_w; column++{
 			drow := float64(row)
 			dcolumn := float64(column)
-			if urbandata[row][column] == -1 {
+			if host.Urbandata[row][column] == -1 {
 				continue
 			}
-			if urbandata[row][column] == 1 {
+			if host.Urbandata[row][column] == 1 {
 				surface.SetSourceRGB(0.7,0.8,0.3)
 			}
-			if urbandata[row][column] == 2 {
+			if host.Urbandata[row][column] == 2 {
 				surface.SetSourceRGB(1.0,0.8,0.2)
 			}
 			
@@ -84,8 +79,8 @@ func main(){
 		surface.SetSourceRGB(pp.R, pp.G, pp.B)
 		
 		for i := 0; i<len(pp.Longitude); i++ {
-			point_lg := library.GetXFromLongitude(pp.Longitude[i], longitude_s, longitude_e, image_pixel_w)
-			point_lt := library.GetYFromLatitude(pp.Latitude[i], latitude_s, latitude_e, image_pixel_h)
+			point_lg := library.GetXFromLongitude(pp.Longitude[i], host.Longitude_s, host.Longitude_e, host.Image_pixel_w)
+			point_lt := library.GetYFromLatitude(pp.Latitude[i], host.Latitude_s, host.Latitude_e, host.Image_pixel_h)
 			if i == 0{
 				surface.MoveTo(point_lg, point_lt)
 			}else{
@@ -95,9 +90,9 @@ func main(){
 		surface.Stroke()
 	}
 
-	for _, cp := range citydata {
-		point_lg := library.GetXFromLongitude(cp.Longitude, longitude_s, longitude_e, image_pixel_w)
-		point_lt := library.GetYFromLatitude(cp.Latitude, latitude_s, latitude_e, image_pixel_h)
+	for _, cp := range host.Citydata {
+		point_lg := library.GetXFromLongitude(cp.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w)
+		point_lt := library.GetYFromLatitude(cp.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h)
 		surface.SetSourceRGB(0.9, 0.2, 0.2)
 		mark_size := 30.0*math.Sqrt(float64(cp.Population)/1000000.0)
 		mark_size_f := mark_size*fix_length
@@ -109,6 +104,6 @@ func main(){
 	
 
 
-	surface.WriteToPNG("../view.png")
+	surface.WriteToPNG("../"+host.Project_name+".png")
 	surface.Finish()
 }

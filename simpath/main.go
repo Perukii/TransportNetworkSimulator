@@ -17,9 +17,7 @@ func main(){
 	flag.Parse()
 	argv := flag.Args()
 
-
 	var host library.SpHost
-
 	
     if host.ApplyCommonArgument(argv) < 0 {
 		fmt.Println("Error : simpath : Invalid arguments.")
