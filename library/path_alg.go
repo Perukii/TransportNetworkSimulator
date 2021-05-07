@@ -36,8 +36,18 @@ type SpHost struct{
 	Max_path_distance_per_city_distance float64
 	Max_bridge_distance float64
 	Max_city_distance float64
-	
+
+	Path_r float64
+	Path_g float64
+	Path_b float64
+	Path_width float64
+	Mark_r float64
+	Mark_g float64
+	Mark_b float64
+	Mark_width float64
+
 	Project_name string
+	Latitude_per_pixel float64
 
 	Heightdata [][]int
 	Citydata []City
@@ -79,7 +89,7 @@ func ToLgLtFix(lglt LgLt) LgLtFix{
 
 func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	
-	if len(argv) != 30 { return -1 }
+	if len(argv) != 38 { return -1 }
 	host.Image_pixel_w = Atoi(argv[1])
 	host.Image_pixel_h = Atoi(argv[2])
 	host.Data_digit = Atoi(argv[3])
@@ -94,6 +104,7 @@ func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	host.Urbandata = RequestUrbanData(argv[10], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	host.UrbanAreadata = RequestUrbanAreaData(argv[11], host.Image_pixel_w, host.Image_pixel_h, host.Data_digit)
 	
+	host.Latitude_per_pixel = (host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h)
 	host.Height_score = Atof(argv[12])
 	host.Height_difference_score = Atof(argv[13])
 	host.Distance_score = Atof(argv[14])
@@ -105,7 +116,7 @@ func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	host.Kruskal_path_max_cross = Atoi(argv[20])
 	host.Path_release_interval = Atof(argv[21])
 	host.Path_draft_interval = Atof(argv[22])
-	host.Urban_area_interval = (host.Latitude_s-host.Latitude_e)/float64(host.Image_pixel_h)
+	host.Urban_area_interval = host.Latitude_per_pixel
 	host.Urban_area_height_difference_score = Atof(argv[23])
 	host.Urban_wide_area_density = Atoi(argv[24])
 	host.Urban_central_area_density = Atoi(argv[25])
@@ -113,6 +124,15 @@ func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	host.Max_bridge_distance = Atof(argv[27])
 	host.Max_city_distance = Atof(argv[28])
 	host.Project_name = argv[29]
+
+	host.Path_r = Atof(argv[30])
+	host.Path_g = Atof(argv[31])
+	host.Path_b = Atof(argv[32])
+	host.Path_width = math.Abs(Atof(argv[33])/host.Latitude_per_pixel)
+	host.Mark_r = Atof(argv[34])
+	host.Mark_g = Atof(argv[35])
+	host.Mark_b = Atof(argv[36])
+	host.Mark_width = math.Abs(Atof(argv[37])/host.Latitude_per_pixel)
 	return 1
 }
 
@@ -139,7 +159,7 @@ func (host *SpHost) Write_path_point(lg, lt float64){
 
 func (host *SpHost) Init_writer(file string){
 	var err error
-	host.Pathdata_file, err = os.Create(file)
+	host.Pathdata_file, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
 		fmt.Println("Error : simpath : Failed to create file.")
 		os.Exit(2)

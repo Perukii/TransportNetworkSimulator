@@ -2,4 +2,10 @@
 
 PROJECT_NAME="Tohoku"
 
+PNG_2_HEIGHT_DATA="0"
+CITY_DATABASE_2_DATA="1"
+URBAN_DATA="0"
+SIM_PATH="1"
+DATA_OUTPUT="1"
+
 . script/run.sh $PWD

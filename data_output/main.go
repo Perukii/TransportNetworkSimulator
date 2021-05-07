@@ -93,8 +93,8 @@ func main(){
 	for _, cp := range host.Citydata {
 		point_lg := library.GetXFromLongitude(cp.Longitude, host.Longitude_s, host.Longitude_e, host.Image_pixel_w)
 		point_lt := library.GetYFromLatitude(cp.Latitude, host.Latitude_s, host.Latitude_e, host.Image_pixel_h)
-		surface.SetSourceRGB(0.9, 0.2, 0.2)
-		mark_size := 30.0*math.Sqrt(float64(cp.Population)/1000000.0)
+		surface.SetSourceRGB(host.Mark_r, host.Mark_g, host.Mark_b)
+		mark_size := host.Mark_width*math.Sqrt(float64(cp.Population)/1000000.0)
 		mark_size_f := mark_size*fix_length
 		surface.Rectangle(point_lg-mark_size_f/2,
 						  point_lt-mark_size_f/2,
@@ -102,8 +102,6 @@ func main(){
 		surface.Fill()
 	}
 	
-
-
 	surface.WriteToPNG("../"+host.Project_name+".png")
 	surface.Finish()
 }

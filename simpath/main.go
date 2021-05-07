@@ -27,8 +27,6 @@ func main(){
 	host.Init()
 	host.Init_writer(argv[9])
 
-	
-
 	type Edge struct{
 		a int
 		b int
@@ -187,18 +185,10 @@ func main(){
 			host.Cityindex[host.UrbanAreadata[edge_list[i].a].Name],
 			host.Cityindex[host.UrbanAreadata[edge_list[i].b].Name],
 			host.Path_release_interval, -1, false)
-		host.Register_new_path(3.0, 0.8, 0.4, 0.2)
+		host.Register_new_path(host.Path_width, host.Path_r, host.Path_g, host.Path_b)
 		for _, ptar := range path {
 			host.Write_path_point(ptar.Longitude, ptar.Latitude)
 		}
-		/*
-		if host.UrbanAreadata[edge_list[i].a].Name == "福岡市" {
-			fmt.Println(host.UrbanAreadata[edge_list[i].b].Name)
-		}
-		if host.UrbanAreadata[edge_list[i].b].Name == "福岡市" {
-			fmt.Println(host.UrbanAreadata[edge_list[i].a].Name)
-		}
-		*/
 	}
 
 	host.Writer.Flush()
