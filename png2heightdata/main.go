@@ -23,8 +23,6 @@ func main(){
 	height_diff := library.Atoi(argv[2])
 	data_digit := library.Atoi(argv[5])
 	
-
-
     png_file, err := os.Open(argv[0])
     if err != nil {
 		fmt.Println("Error : png2heightdata : Failed to open file.")
@@ -98,6 +96,7 @@ func main(){
 			line += snum
 			if x != bounds.Max.X-1 { line += "," }
 			
+			
 		}
 
 		line += "\n"
@@ -106,6 +105,11 @@ func main(){
 			fmt.Println("Error : png2heightdata : Failed to write file.")
 			os.Exit(2)
 		}
+
+		if y%100 == 0 {
+			fmt.Println("png2heightdata : creating heightdata... ("+library.Itoa(y)+"x"+library.Itoa(bounds.Max.X)+")")
+		}
+		
 	}
 
 	writer.Flush()

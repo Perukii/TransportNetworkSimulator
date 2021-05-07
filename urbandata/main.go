@@ -13,14 +13,13 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 26 {
+	var host library.SpHost
+
+    if host.ApplyCommonArgument(argv) < 0 {
 		fmt.Println("Error : urbandata : Invalid arguments.")
 		os.Exit(2)
     }
 
-	var host library.SpHost
-
-	host.ApplyCommonArgument(argv)
 	host.Height_difference_score = host.Urban_area_height_difference_score
 
 	host.Init()

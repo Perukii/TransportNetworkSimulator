@@ -107,11 +107,13 @@ func main(){
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
 			if len(itp) < 11 { continue }
+			if strings.Contains(itp[1], "区") {
+				continue
+				//data_list[data_index[library.Atoi(itp[0])/100*100]].Population = 0
+			}
 			ad := data_index[library.Atoi(itp[0])]
 			data_list[ad].Name = itp[1]
-			if strings.Contains(itp[1], "区") {
-				data_list[data_index[library.Atoi(itp[0])/100*100]].Population = 0
-			}
+
 			data_list[ad].Longitude = library.Atof(itp[9])
 			data_list[ad].Latitude = library.Atof(itp[8])
 			lg := data_list[ad].Longitude

@@ -16,19 +16,81 @@ func main(){
 
 	flag.Parse()
 	argv := flag.Args()
-    if len(argv) != 26 {
-		fmt.Println("Error : simpath : Invalid arguments.", len(argv))
-		os.Exit(2)
-    }
+
 
 	var host library.SpHost
 
-	host.ApplyCommonArgument(argv)
+	
+    if host.ApplyCommonArgument(argv) < 0 {
+		fmt.Println("Error : simpath : Invalid arguments.")
+		os.Exit(2)
+    }
 
 	host.Init()
 	host.Init_writer(argv[9])
 
-	var get_angle = func(a, b int) float64{
+	
+
+	type Edge struct{
+		a int
+		b int
+		score float64
+		dist float64
+	}
+	
+	var area_num int
+	var group []int
+	var edge_list []Edge
+	var edge_board [][]int
+
+
+	for i := 0; i<len(host.UrbanAreadata); i++ {
+		if host.UrbanAreadata[i].Population >= host.Kruskal_path_min_population {
+			group = append(group, i)
+			area_num++
+		} else {
+			break
+		}
+	}
+	
+	edge_board = make([][]int, area_num)
+
+	var get_dist = func(i, j int) float64{
+		iad := host.Cityindex[host.UrbanAreadata[i].Name]
+		jad := host.Cityindex[host.UrbanAreadata[j].Name]
+		lgd := (host.Citydata[iad].Longitude - host.Citydata[jad].Longitude)/host.LgLt_ratio
+		ltd := host.Citydata[iad].Latitude - host.Citydata[jad].Latitude
+		return math.Sqrt(lgd*lgd+ltd*ltd)
+	}
+
+	get_score := func(edge Edge) float64{
+		ca := host.Cityindex[host.UrbanAreadata[edge.a].Name]
+		cb := host.Cityindex[host.UrbanAreadata[edge.b].Name]
+		_, path_sc := host.Make_aster_path(ca, cb,
+										   host.Path_draft_interval, -1, false)
+		population := float64(host.Citydata[ca].Population+host.Citydata[cb].Population)
+		
+		if path_sc < 0 || path_sc > get_dist(edge.a, edge.b)*host.Max_path_distance_per_city_distance{
+			return -1
+		}
+
+		return path_sc - population*host.Population_score
+	}
+
+	get_group := func(ad int) int {
+		for {
+			if group[ad] == ad {
+				break
+			} else {
+				ad = group[ad]
+			}
+		}
+		return ad
+	}
+ 
+
+
+	var get_angle = func(a,b int) float64{
 		city_a := host.Citydata[a]
 		city_b := host.Citydata[b]
 		ltd := city_b.Latitude-city_a.Latitude
@@ -56,64 +118,6 @@ func main(){
 		return math.Min(da, 360-da)
 	}
 
-	
-
-	
-	var area_num int
-	var group []int
-
-	for i := 0; i<len(host.UrbanAreadata); i++ {
-		if host.UrbanAreadata[i].Population >= host.Kruskal_path_min_population {
-			group = append(group, i)
-			area_num++
-		} else {
-			break
-		}
-	}
-	
-
-	type Edge struct{
-		a int
-		b int
-		score float64
-		dist float64
-	}
-
-	
-
-	get_score := func(edge Edge) float64{
-		ca := host.Cityindex[host.UrbanAreadata[edge.a].Name]
-		cb := host.Cityindex[host.UrbanAreadata[edge.b].Name]
-		_, path_sc := host.Make_aster_path(ca, cb,
-										   host.Path_draft_interval, -1, false)
-		population := float64(host.Citydata[ca].Population+host.Citydata[cb].Population)
-		return path_sc - population*host.Population_score
-	}
-
-	get_group := func(ad int) int {
-		for {
-			if group[ad] == ad {
-				break
-			} else {
-				ad = group[ad]
-			}
-		}
-		return ad
-	}
- 
-	var get_dist = func(i, j int) float64{
-		iad := host.Cityindex[host.UrbanAreadata[i].Name]
-		jad := host.Cityindex[host.UrbanAreadata[j].Name]
-		lgd := host.Citydata[iad].Longitude - host.Citydata[jad].Longitude
-		ltd := host.Citydata[iad].Latitude - host.Citydata[jad].Latitude
-		return math.Sqrt(lgd*lgd+ltd*ltd)
-	}
-
-	var edge_list []Edge
-	var edge_board [][]int
-	edge_board = make([][]int, area_num)
-	_, _, _ = get_angle, get_angle_dist, host.Kruskal_path_max_angle_difference
-
 	for i := 0; i<area_num; i++ {
 		var edge_cmp []Edge
 		for j := 0; j<area_num; j++ {
@@ -123,13 +127,22 @@ func main(){
 			edge.b = j
 			edge.dist = get_dist(i,j)
 			edge_cmp = append(edge_cmp, edge)
+
 		}
+		
+		listed := 0
 		sort.Slice(edge_cmp, func(i, j int) bool { return edge_cmp[i].dist < edge_cmp[j].dist })
 		for j := 0; j<host.Kruskal_path_max_cross; j++{
 			if len(edge_cmp) <= j { break } 
 			edge_cmp[j].score = get_score(edge_cmp[j])
-			edge_list = append(edge_list, edge_cmp[j])
+			if (listed == 0 || edge_cmp[j].dist < host.Max_city_distance) && edge_cmp[j].score >= 0 {
+				edge_list = append(edge_list, edge_cmp[j])
+				listed++
+			}
+			
 		}
+		
+
 	}
 
 	sort.Slice(edge_list, func(i, j int) bool { return edge_list[i].score < edge_list[j].score })
@@ -180,6 +193,14 @@ func main(){
 		for _, ptar := range path {
 			host.Write_path_point(ptar.Longitude, ptar.Latitude)
 		}
+		/*
+		if host.UrbanAreadata[edge_list[i].a].Name == "福岡市" {
+			fmt.Println(host.UrbanAreadata[edge_list[i].b].Name)
+		}
+		if host.UrbanAreadata[edge_list[i].b].Name == "福岡市" {
+			fmt.Println(host.UrbanAreadata[edge_list[i].a].Name)
+		}
+		*/
 	}
 
 	host.Writer.Flush()

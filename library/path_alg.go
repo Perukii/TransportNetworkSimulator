@@ -33,6 +33,10 @@ type SpHost struct{
 	Urban_wide_area_density int
 	Urban_central_area_density int
 	Urban_area_height_difference_score float64
+	Max_path_distance_per_city_distance float64
+	Max_bridge_distance float64
+	Max_city_distance float64
+
 
 	Heightdata [][]int
 	Citydata []City
@@ -72,7 +76,9 @@ func ToLgLtFix(lglt LgLt) LgLtFix{
 	return res
 }
 
-func (host *SpHost) ApplyCommonArgument(argv []string){
+func (host *SpHost) ApplyCommonArgument(argv []string) int{
+	
+	if len(argv) != 29 { return -1 }
 	host.Image_pixel_w = Atoi(argv[1])
 	host.Image_pixel_h = Atoi(argv[2])
 	host.Data_digit = Atoi(argv[3])
@@ -102,6 +108,10 @@ func (host *SpHost) ApplyCommonArgument(argv []string){
 	host.Urban_area_height_difference_score = Atof(argv[23])
 	host.Urban_wide_area_density = Atoi(argv[24])
 	host.Urban_central_area_density = Atoi(argv[25])
+	host.Max_path_distance_per_city_distance = Atof(argv[26])
+	host.Max_bridge_distance = Atof(argv[27])
+	host.Max_city_distance = Atof(argv[28])
+	return 1
 }
 
 func (host *SpHost) Init(){
@@ -317,11 +327,22 @@ func (host *SpHost) Make_aster_path(index_a, index_b int, interval float64, loop
 		}
 		res = append(res, ToLgLt(city_a.Longitude, city_a.Latitude))
 
+		bridge := 0.0
 		for i := 1; i < len(res); i++ {
 			lgd := (res[i].Longitude - res[i-1].Longitude)/host.LgLt_ratio
 			ltd := res[i].Latitude - res[i-1].Latitude
 			distance := math.Sqrt(lgd*lgd+ltd*ltd)
 			length += distance
+
+			if get_height(res[i]) == 0{
+				bridge += distance
+				if bridge > host.Max_bridge_distance {
+					length = -1
+					break
+				}
+			} else {
+				bridge = 0
+			}
 		}
 		
 	} else {
