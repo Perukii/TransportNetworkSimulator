@@ -285,7 +285,6 @@ func RequestUrbanAreaData(file string, image_pixel_w int, image_pixel_h int, dat
 			itp := strings.Split(it, ",")
 			area.Name = itp[0]
 			area.Population = Atoi(itp[1])
-
 		}
 		areadata = append(areadata, area)
 		

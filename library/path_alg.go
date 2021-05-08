@@ -45,6 +45,8 @@ type SpHost struct{
 	Mark_g float64
 	Mark_b float64
 	Mark_width float64
+	Dummy_city_max_height int
+	Dummy_city_interval_latitude float64
 
 	Project_name string
 	Latitude_per_pixel float64
@@ -54,6 +56,8 @@ type SpHost struct{
 	Cityindex map[string]int
 	Urbandata [][]int
 	UrbanAreadata []UrbanArea
+
+	
 }
 
 type LgLt struct{
@@ -89,7 +93,7 @@ func ToLgLtFix(lglt LgLt) LgLtFix{
 
 func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	
-	if len(argv) != 38 { return -1 }
+	if len(argv) != 40 { return -1 }
 	host.Image_pixel_w = Atoi(argv[1])
 	host.Image_pixel_h = Atoi(argv[2])
 	host.Data_digit = Atoi(argv[3])
@@ -133,6 +137,9 @@ func (host *SpHost) ApplyCommonArgument(argv []string) int{
 	host.Mark_g = Atof(argv[35])
 	host.Mark_b = Atof(argv[36])
 	host.Mark_width = math.Abs(Atof(argv[37])/host.Latitude_per_pixel)
+
+	host.Dummy_city_interval_latitude = Atof(argv[38])
+	host.Dummy_city_max_height = Atoi(argv[39])
 	return 1
 }
 
@@ -161,7 +168,7 @@ func (host *SpHost) Init_writer(file string){
 	var err error
 	host.Pathdata_file, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
-		fmt.Println("Error : simpath : Failed to create file.")
+		fmt.Println("Error : library : Failed to create file.")
 		os.Exit(2)
     }
 

@@ -38,7 +38,8 @@ UPDATE_COMMON_ARG () {
     $MAX_PATH_DISTANCE_PER_CITY_DISTANCE $MAX_BRIDGE_DISTANCE \
     $MAX_CITY_DISTANCE $PROJECT_NAME \
     $PATH_COLOR_R $PATH_COLOR_G $PATH_COLOR_B $PATH_WIDTH \
-    $MARK_COLOR_R $MARK_COLOR_G $MARK_COLOR_B $MARK_WIDTH"
+    $MARK_COLOR_R $MARK_COLOR_G $MARK_COLOR_B $MARK_WIDTH \
+    $DUMMY_CITY_INTERVAL_LATITUDE $DUMMY_CITY_MAX_HEIGHT"
 }
 . $PARAMETER_SCRIPT
 UPDATE_COMMON_ARG
@@ -52,12 +53,13 @@ if [ $CITY_DATABASE_2_DATA = "1" ]; then
     (cd $HOME_DIR/citydatabase2data;. citydatabase2data.sh $JPN_POPULATION_DATA_FILE \
     $JPN_POSITION_DATA_FILE $CITY_DATA_FILE \
     $LONGITUDE_START $LONGITUDE_END $LATITUDE_START $LATITUDE_END)
+    (cd $HOME_DIR/dummycity;. dummycity.sh)
 fi
 
 if [ $URBAN_DATA = "1" ]; then
     echo "" > $URBAN_DATA_FILE
     echo "" > $URBAN_AREA_DATA_FILE
-    (cd $HOME_DIR/urbandata;. urbandata.sh $COMMON_ARG)
+    (cd $HOME_DIR/urbandata;. urbandata.sh)
 fi
 
 if [ $SIM_PATH = "1" ]; then
@@ -69,7 +71,7 @@ if [ $SIM_PATH = "1" ]; then
             . $PARAMETER_SCRIPT
             . $PATH_SCRIPT
             UPDATE_COMMON_ARG
-            (cd $HOME_DIR/simpath;. simpath.sh $COMMON_ARG)
+            (cd $HOME_DIR/simpath;. simpath.sh $c)
         else
             break
         fi
@@ -77,5 +79,5 @@ if [ $SIM_PATH = "1" ]; then
 fi
 
 if [ $DATA_OUTPUT = "1" ]; then
-    (cd $HOME_DIR/data_output;. data_output.sh $COMMON_ARG)
+    (cd $HOME_DIR/data_output;. data_output.sh)
 fi

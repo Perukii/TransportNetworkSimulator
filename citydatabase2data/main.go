@@ -46,8 +46,6 @@ func main(){
 
 	
 
-	_,_=position_file,citydata_file
-
 	var data_index map[int]int
 	data_index = make(map[int]int)
 	var data_list []library.City
@@ -71,7 +69,6 @@ func main(){
 		}
 		
 		slice := strings.Split(string(buf), "\n")
-		//fmt.Println(slice)
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
 			if len(itp) < 7 { continue }
@@ -103,13 +100,11 @@ func main(){
 		}
 		
 		slice := strings.Split(string(buf), "\n")
-		//fmt.Println(slice)
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
 			if len(itp) < 11 { continue }
 			if strings.Contains(itp[1], "区") {
 				continue
-				//data_list[data_index[library.Atoi(itp[0])/100*100]].Population = 0
 			}
 			ad := data_index[library.Atoi(itp[0])]
 			data_list[ad].Name = itp[1]

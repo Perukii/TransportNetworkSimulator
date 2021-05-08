@@ -7,8 +7,13 @@ PATH_WIDTH="0.007"
 KRUSKAL_PATH_MIN_POPULATRION="10000"
 
 # スコア計算における2都市間の距離の影響度
-DISTANCE_SCORE="2500.0"
+DISTANCE_SCORE="3000.0"
 
 # 都市と都市の間の直線距離の最大
 MAX_CITY_DISTANCE="0.8"
 
+# 一つの都市に対する対象のパスと他都市間のパスとの角度の差の最小値の下限
+KRUSKAL_PATH_MAX_ANGLE_DIFFELENCE="85.0"
+
+# パスの生成に利用するA*路の粗さ
+PATH_RELEASE_INTERVAL="0.01"
