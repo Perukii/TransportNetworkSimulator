@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"io"
 	"sort"
+	"math"
 )
 
 type MapInfo struct{
@@ -302,9 +303,15 @@ func GetXFromLongitude(tar_longitude float64, longitude_s float64, longitude_e f
 	return (tar_longitude-longitude_s)/(longitude_e-longitude_s)*float64(image_pixel_w)
 }
 
+
 func GetYFromLatitude(tar_latitude float64, latitude_s float64, latitude_e float64,
 						image_pixel_h int)float64{
-	latitude_s += 0.016
-	latitude_e += 0.016
-	return (1.0-(tar_latitude-latitude_s)/(latitude_e-latitude_s))*float64(image_pixel_h)
+							
+	var f = func(lt float64) float64{
+		ltr := lt/180*3.1415
+		return math.Log(math.Abs(math.Tan(3.1415/4+ltr/2)))
+	}
+
+	return (f(latitude_e)-f(tar_latitude))/(f(latitude_e)-f(latitude_s))*float64(image_pixel_h)
+
 }

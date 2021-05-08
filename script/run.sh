@@ -41,8 +41,17 @@ UPDATE_COMMON_ARG () {
     $MARK_COLOR_R $MARK_COLOR_G $MARK_COLOR_B $MARK_WIDTH \
     $DUMMY_CITY_INTERVAL_LATITUDE $DUMMY_CITY_MAX_HEIGHT"
 }
+
 . $PARAMETER_SCRIPT
 UPDATE_COMMON_ARG
+
+if [ $FILE_INIT = "1" ]; then
+    echo "" > $HEIGHT_DATA_FILE
+    echo "" > $CITY_DATA_FILE
+    echo "" > $URBAN_DATA_FILE
+    echo "" > $URBAN_AREA_DATA_FILE
+    echo "" > $PATH_DATA_FILE
+fi
 
 if [ $PNG_2_HEIGHT_DATA = "1" ]; then
     (cd $HOME_DIR/png2heightdata;. png2heightdata.sh $IMAGE_FILE $HEIGHT_DATA_FILE \

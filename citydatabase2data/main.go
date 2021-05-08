@@ -54,6 +54,9 @@ func main(){
 
 	pop_reader := bufio.NewReaderSize(population_file, 4096)
 
+	previous_city_name := ""
+	previous_city_ad := -1
+
     for {
 		buf, _, err := pop_reader.ReadLine()
 		if err == io.EOF {
@@ -74,13 +77,28 @@ func main(){
 			if len(itp) < 7 { continue }
 
 			ad := len(data_list)
-			data_index[library.Atoi(itp[2])] = ad
+
+			name := strings.Split(itp[3], " ")
+			
+			if len(name) >= 3 && strings.Contains(name[2], "区") && ad > 0{
+				if name[1] == previous_city_name{
+					data_list[previous_city_ad].Population = 0
+				}
+			} else{
+				previous_city_name = name[1]
+				previous_city_ad = ad
+			}
+			
+
+			data_index[library.Atoi(itp[2])] = ad+1
 
 			var cp library.City
 			cp.Population = library.Atoi(itp[5])
 			data_list = append(data_list, cp)
 		}
 	}
+
+	
 
 	pos_reader := bufio.NewReaderSize(position_file, 4096)
 	pos_header := true
@@ -102,11 +120,12 @@ func main(){
 		slice := strings.Split(string(buf), "\n")
 		for _, it := range slice{
 			itp := strings.Split(it, ",")
-			if len(itp) < 11 { continue }
-			if strings.Contains(itp[1], "区") {
-				continue
-			}
-			ad := data_index[library.Atoi(itp[0])]
+			if len(itp) < 11 { break }
+
+			ad := data_index[library.Atoi(itp[0])]-1
+
+			if ad < 0 { break }
+			
 			data_list[ad].Name = itp[1]
 
 			data_list[ad].Longitude = library.Atof(itp[9])
@@ -117,7 +136,6 @@ func main(){
 			if lg < longitude_s || lg > longitude_e || lt < latitude_s || lt > latitude_e {
 				data_list[ad].Population = 0
 			}
-
 		}
 	}
 

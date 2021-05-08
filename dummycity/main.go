@@ -16,7 +16,7 @@ func main(){
 	argv := flag.Args()
 
     if host.ApplyCommonArgument(argv) < 0 {
-		fmt.Println("Error : dummycity : Invalid arguments.")
+		fmt.Println("Error : dummycity : Invalid arguments.", len(argv))
 		os.Exit(2)
     }
 
@@ -55,7 +55,7 @@ func main(){
 			for y := yb; y<yf; y++{
 				for x := xb; x<xf; x++{
 					
-					if y >= host.Image_pixel_h || x >= host.Image_pixel_w { continue }
+					if x < 0 || y < 0 || y >= host.Image_pixel_h || x >= host.Image_pixel_w { continue }
 					if host.Heightdata[y][x] == 0 { continue }
 
 					if min_height > host.Heightdata[y][x] {

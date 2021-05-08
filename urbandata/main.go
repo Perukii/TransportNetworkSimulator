@@ -37,8 +37,6 @@ func main(){
 		os.Exit(2)
     }
 
-	
-
 	var urbandata [][]int
 	urbandata = make([][]int, host.Image_pixel_h)
 	for i := 0; i < host.Image_pixel_h; i++{
@@ -60,6 +58,18 @@ func main(){
 		urbanroot[i].Population = host.Citydata[i].Population
 	}
 
+	var get_root = func(i int)int{
+		res := i
+		for {
+			if res < 0 { return -1 }
+			if urbanroot[res].Root == res{
+				return res
+			} else {
+				res = urbanroot[res].Root
+			}
+		}
+	}
+
 	for n := 0; n<2; n++{
 
 		for i := 0; i < len(host.Citydata); i++ {
@@ -77,7 +87,8 @@ func main(){
 				}
 				if n == 0{
 					cmp := urbandata[yad][xad]
-					if cmp >= 0{
+				
+					if get_root(i) != get_root(cmp) && cmp >= 0{
 						if host.Citydata[cmp].Population > host.Citydata[i].Population{
 							urbanroot[i].Root = cmp
 							urbanroot[cmp].Population += urbanroot[i].Population
