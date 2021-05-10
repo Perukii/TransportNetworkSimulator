@@ -5,6 +5,8 @@
 
 ![IMG-1267](https://user-images.githubusercontent.com/57752033/117640914-7e8dee00-b1c0-11eb-90b4-711a13c4044c.JPG)
 
+(より詳細な出力画像:'Japan.png')
+
 ### 概要
 
 都市と地形図のデータをもとに、仮想的な交通網を生成するアルゴリズムのシュミレータ。<br>
