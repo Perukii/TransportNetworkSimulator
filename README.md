@@ -3,7 +3,8 @@
 
 制作 : 多田 瑛貴 (ただ てるき)
 
-![IMG-1267](https://user-images.githubusercontent.com/57752033/117640914-7e8dee00-b1c0-11eb-90b4-711a13c4044c.JPG)
+![A7A21AEB-9221-4831-9CA7-F28F5E4551FF](https://user-images.githubusercontent.com/57752033/131674193-754fedcc-0a61-46c4-954a-770c378ed37a.png)
+
 
 (より詳細な出力画像:'Japan.png')
 
