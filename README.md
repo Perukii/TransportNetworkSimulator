@@ -3,10 +3,10 @@
 
 制作 : 多田 瑛貴 (ただ てるき)
 
-![A7A21AEB-9221-4831-9CA7-F28F5E4551FF](https://user-images.githubusercontent.com/57752033/131674193-754fedcc-0a61-46c4-954a-770c378ed37a.png)
+![2108C70E-69D5-4492-81A7-983F2ED087EF](https://user-images.githubusercontent.com/57752033/131674598-3f096d48-1b9f-45d2-9d17-067218a0c2a3.png)
 
 
-(より詳細な出力画像:'Japan.png')
+(より詳細な出力画像:[Japan.png](https://github.com/Perukii/TransportNetworkSimulator/blob/master/Japan.png))
 
 ### 概要
 
